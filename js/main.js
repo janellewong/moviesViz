@@ -1,4 +1,12 @@
 let data, data_filtered;
+
+let BudgetFilterValues = {
+  min: 10,
+  max: 356000000
+}
+
+// TODO: Instantiate charts with global filter slider
+
 /**
  * Load data from CSV file asynchronously and render charts
  */
@@ -29,9 +37,41 @@ d3.csv('data/movies-processed.csv')
   barchart = new BarChart({parentElement: '#bar-chart',}, data);
   barchart.updateVis();
 
-  heatmap = new Heatmap({parentElement: '#lexis-chart',}, data);
+  heatmap = new Heatmap({parentElement: '#heatmap',}, data);
   heatmap.updateVis();
 
   geographic = new Geographic({parentElement: '#geographic-map',}, data);
   geographic.updateVis();
-});
+
+
+
+}).catch(error => console.error(error));
+
+
+/*
+Slider:
+
+Get values from sliders when used and update BudgetFilterValues global filter min and max
+ */
+function controlSlider(fromSlider, toSlider) {
+  let fromVal = fromSlider.value
+  let toVal = toSlider.value
+
+  if (fromVal > toVal) {
+    BudgetFilterValues.max = fromVal
+    BudgetFilterValues.min = toVal
+  } else {
+    BudgetFilterValues.max = toVal
+    BudgetFilterValues.min = fromVal
+  }
+  console.log('min: ' + BudgetFilterValues.min)
+  console.log('max: ' + BudgetFilterValues.max)
+}
+
+const fromSlider = document.querySelector('#slider1');
+const toSlider = document.querySelector('#slider2');
+
+fromSlider.oninput = () => controlSlider(fromSlider, toSlider);
+toSlider.oninput = () => controlSlider(fromSlider, toSlider);
+
+
