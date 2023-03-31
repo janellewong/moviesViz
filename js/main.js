@@ -35,8 +35,6 @@ d3.csv('data/movies-processed.csv')
     return d;
   });
 
-  console.log(data);
-
   data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot

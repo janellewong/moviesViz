@@ -129,26 +129,24 @@ class Heatmap {
       return budget >= BudgetFilterValues.min && budget <= BudgetFilterValues.max
     }), d => d.Year);
 
-    // // Sort states by total case numbers (if the option is selected by the user)
-    // if (vis.config.sortOption == 'cases') {
-    //   // Sum the case numbers for each state
-    //   // d[0] is the state name, d[1] contains an array of yearly values
-    //   vis.groupedData.forEach(d => {
-    //     d[3] = d3.sum(d[1], k => k.value);
-    //   });
-    //
-    //   // Descending order
-    //   vis.groupedData.sort((a,b) => b[3] - a[3]);
-    // }
+    vis.groupedMonthData = d3.groups(vis.groupedData, d => {
+      // console.log(d[1])
+      return d3.groups(d[1], nested => {
+        return nested.Month
+      })
+    })
+    // console.log(vis.groupedData.slice(0,5))
 
     // TODO: may have to fix accessor functions
     // Specify accessor functions
-    vis.yValue = d => d[0];
-    vis.colorValue = d => d.length;
-    vis.xValue = d => this.config.months[d.Month];
+    vis.yValue = d => d[0]; // get years
+    vis.colorValue = d => d.length; // get movie count
+    vis.xValue = d => this.config.months[d.Month]; // get month index
+
+    // console.log(vis.groupedData.map(vis.yValue))
    
     // Set the scale input domains
-    vis.colorScale.domain(vis.groupedData.map(vis.colorValue));
+    vis.colorScale.domain(vis.groupedData.map(d => vis.colorValue(d[1])));
     // vis.xScale.domain(d3.extent(vis.data, vis.xValue));
     vis.xScale.domain([0, 11])
     vis.yScale.domain(d3.extent(vis.groupedData.map(vis.yValue)));
@@ -195,7 +193,27 @@ class Heatmap {
 
     // 2a) Actual cells
     const cell = row.merge(rowEnter).selectAll('.h-cell')
-        .data(d => d[1]);
+        .data(vis.groupedMonthData, d => {
+          // add movie count for the month for each element
+          // let d_obj = Object.fromEntries(d.map(([v,k]) => {v: k}))
+          // let d_obj = d.reduce((a, [val, key]) => {
+          //   a[key] = val;
+          //   return a
+          // }, {});
+          // TODO: NOT WORKING
+          let d_map = new Map(d.map(([v, k]) => [k, v]));
+
+          console.log("grouped month: ", d_map)
+          let movie_count = vis.colorValue(d[1])
+          d[1].map(obj => {
+            // console.log(obj)
+            let month = obj.Month
+            let result = d_map.get(month)
+            console.log('result: ', result)
+            obj['MonthMovieCount'] = movie_count
+          })
+          return d[1]
+        });
 
     // Enter
     const cellEnter = cell.enter().append('rect')
@@ -205,12 +223,14 @@ class Heatmap {
     cellEnter.merge(cell)
         .attr('height', vis.yScale.bandwidth())
         .attr('width', cellWidth)
-        .attr('x', d => vis.xScale(vis.xValue(d)))
+        .attr('x', d => {
+          return vis.xScale(vis.xValue(d))
+        })
         .attr('fill', d => {
           if (d.value === 0 || d.value === null) {
             return '#fff';
           } else {
-            return vis.colorScale(vis.colorValue(d));
+            return vis.colorScale(d.MonthMovieCount);
           }
         })
         // .on('mouseover', (event,d) => {
