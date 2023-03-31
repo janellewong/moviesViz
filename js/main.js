@@ -23,15 +23,15 @@ d3.csv('data/movies-processed.csv')
 
   data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
 
-  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, dispatcher, data_filtered); // put the filtered data in since we don't want unknowns in the scatterplot
+  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered); // put the filtered data in since we don't want unknowns in the scatterplot
   scatterplot.updateVis();
 
-  barchart = new BarChart({parentElement: '#bar-chart',}, dispatcher, data);
+  barchart = new BarChart({parentElement: '#bar-chart',}, data);
   barchart.updateVis();
 
-  heatmap = new Heatmap({parentElement: '#lexis-chart',}, dispatcher, data);
+  heatmap = new Heatmap({parentElement: '#lexis-chart',}, data);
   heatmap.updateVis();
 
-  geographic = new Geographic({parentElement: '#geographic-map',}, dispatcher, data);
+  geographic = new Geographic({parentElement: '#geographic-map',}, data);
   geographic.updateVis();
 });

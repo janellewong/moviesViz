@@ -9,11 +9,40 @@
 <body>
     <h1>Top 100 Popular IMDb Movies</h1>    
     <!-- Add HTML content, SVG drawing area, ... -->
+
+
+    <div class="container">
+        <div class="top-left-box">
+            <svg id="geographic-map"></svg>
+        </div>
+        <div class="top-right-box">
+            <div class="top-right-top-box">
+                slider goes here
+            </div>
+            <div class="top-right-bottom-box">
+                <svg id="lexis-chart"></svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="bottom-left-box">
+            <svg id="scatter-plot"></svg>
+        </div>
+        <div class="bottom-right-box">
+            <svg id="bar-chart"></svg>
+        </div>
+    </div>
     
     <!-- D3 bundle -->
     <script src="js/d3.v6.min.js"></script>
+    <script src="js/topojson.v3.js"></script>
 
     <!-- Our JS code -->
     <script src="js/main.js"></script>
+    <script src="js/scatterplot.js"></script>
+    <script src="js/barchart.js"></script>
+    <script src="js/heatmap.js"></script>
+    <script src="js/geomap.js"></script>
 </body>
 </html>

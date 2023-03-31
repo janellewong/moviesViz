@@ -1,0 +1,58 @@
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 30px;
+    background: #f7f7f7;
+  }
+
+  .container {
+    display: flex;
+  }
+
+  .top-left-box {
+    margin-top: 30px;
+    margin-bottom: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+
+    padding: 10px;
+  }
+  
+  .top-right-top-box {
+    margin-top: 30px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+    height: 50px;
+
+    padding: 10px;
+  }
+
+  .top-right-bottom-box {
+    margin-bottom: 20px;
+    margin-left: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+
+    padding: 10px;
+  }
+
+  .bottom-right-box {
+    margin-left: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+
+    padding: 10px;
+  }
+  .bottom-left-box {
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+
+    padding: 10px;
+  }
