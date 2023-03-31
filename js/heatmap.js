@@ -5,7 +5,7 @@ class Heatmap {
    * @param {Object}
    * @param {Array}
    */
-  constructor(_config, _data) {
+  constructor(_config, _data, _dispatcher) {
     this.config = {
       parentElement: _config.parentElement,
       vaccineIntroduced: _config.vaccineIntroduced,
@@ -14,9 +14,23 @@ class Heatmap {
       tooltipPadding: 15,
       margin: {top: 60, right: 20, bottom: 20, left: 45},
       legendWidth: 160,
-      legendBarHeight: 10
+      legendBarHeight: 10,
+      months: {'January': 0,
+        'February': 1,
+        'March': 2,
+        'April': 3,
+        'May': 4,
+        'June': 5,
+        'July': 6,
+        'August': 7,
+        'September': 8,
+        'October': 9,
+        'November': 10,
+        'December': 11
+      }
     }
     this.data = _data;
+    this.dispatcher = _dispatcher
     this.initVis();
   }
   
@@ -42,9 +56,9 @@ class Heatmap {
 
     vis.chart = vis.chartArea.append('g');
 
-    // Add vaccine annotation
-    vis.vaccineLine = vis.chartArea.append('line')
-        .attr('class', 'vaccine-line');
+    // // Add vaccine annotation
+    // vis.vaccineLine = vis.chartArea.append('line')
+    //     .attr('class', 'vaccine-line');
 
     vis.vaccineLabel = vis.chartArea.append('text')
         .attr('class', 'vaccine-label')
@@ -53,6 +67,7 @@ class Heatmap {
         .attr('dy', '0.85em')
         .text('Vaccine introduced');
 
+    // TODO: may have to fix scales to use scaleBand for month?
     // Initialize scales
     vis.colorScale = d3.scaleSequential()
         .interpolator(d3.interpolateReds);
@@ -108,34 +123,40 @@ class Heatmap {
     const vis = this;
 
     // Group data per state (we get a nested array)
-    // [['Alaska', [array with values]], ['Ala.', [array with values]], ...]
-    vis.groupedData = d3.groups(vis.data, d => d.state);
+    // [[2022, [array with values]], [2021, [array with values]], ...]
+    vis.groupedData = d3.groups(vis.data.filter((d) => {
+      let budget = d.Budget
+      return budget >= BudgetFilterValues.min && budget <= BudgetFilterValues.max
+    }), d => d.Year);
 
-    // Sort states by total case numbers (if the option is selected by the user)
-    if (vis.config.sortOption == 'cases') {
-      // Sum the case numbers for each state
-      // d[0] is the state name, d[1] contains an array of yearly values
-      vis.groupedData.forEach(d => {
-        d[3] = d3.sum(d[1], k => k.value);
-      });
+    // // Sort states by total case numbers (if the option is selected by the user)
+    // if (vis.config.sortOption == 'cases') {
+    //   // Sum the case numbers for each state
+    //   // d[0] is the state name, d[1] contains an array of yearly values
+    //   vis.groupedData.forEach(d => {
+    //     d[3] = d3.sum(d[1], k => k.value);
+    //   });
+    //
+    //   // Descending order
+    //   vis.groupedData.sort((a,b) => b[3] - a[3]);
+    // }
 
-      // Descending order
-      vis.groupedData.sort((a,b) => b[3] - a[3]);
-    }
-    
-    // Specificy accessor functions
+    // TODO: may have to fix accessor functions
+    // Specify accessor functions
     vis.yValue = d => d[0];
-    vis.colorValue = d => d.value;
-    vis.xValue = d => d.year;
+    vis.colorValue = d => d.length;
+    vis.xValue = d => this.config.months[d.Month];
    
     // Set the scale input domains
-    vis.colorScale.domain(d3.extent(vis.data, vis.colorValue));
-    vis.xScale.domain(d3.extent(vis.data, vis.xValue));
-    vis.yScale.domain(vis.groupedData.map(vis.yValue));
-    
+    vis.colorScale.domain(vis.groupedData.map(vis.colorValue));
+    // vis.xScale.domain(d3.extent(vis.data, vis.xValue));
+    vis.xScale.domain([0, 11])
+    vis.yScale.domain(d3.extent(vis.groupedData.map(vis.yValue)));
+
     vis.renderVis();
     vis.renderLegend();
   }
+
 
   /**
    * Bind data to visual elements.
@@ -144,19 +165,19 @@ class Heatmap {
     const vis = this;
 
     const cellWidth = (vis.config.width / (vis.xScale.domain()[1] - vis.xScale.domain()[0])) - 2;
-    
+
     // 1. Level: rows
     const row = vis.chart.selectAll('.h-row')
-        .data(vis.groupedData, d=> d[0]);
+        .data(vis.groupedData);
 
     // Enter
     const rowEnter = row.enter().append('g')
         .attr('class', 'h-row');
 
-    // Enter + update
-    rowEnter.merge(row)
-      .transition().duration(1000)
-        .attr('transform', d => `translate(0,${vis.yScale(vis.yValue(d))})`);
+    // // Enter + update
+    // rowEnter.merge(row)
+    //   .transition().duration(1000)
+    //     .attr('transform', d => `translate(0,${vis.yScale(vis.yValue(d))})`);
 
     // Exit
     row.exit().remove();
@@ -192,44 +213,44 @@ class Heatmap {
             return vis.colorScale(vis.colorValue(d));
           }
         })
-        .on('mouseover', (event,d) => {
-          const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
-          d3.select('#tooltip')
-            .style('display', 'block')
-            .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
-            .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-            .html(`
-              <div class='tooltip-title'>${d.state}</div>
-              <div>${d.year}: <strong>${value}</strong></div>
-            `);
-        })
-        .on('mouseleave', () => {
-          d3.select('#tooltip').style('display', 'none');
-        });
+        // .on('mouseover', (event,d) => {
+        //   const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
+        //   d3.select('#tooltip')
+        //     .style('display', 'block')
+        //     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+        //     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+        //     .html(`
+        //       <div class='tooltip-title'>${d.state}</div>
+        //       <div>${d.year}: <strong>${value}</strong></div>
+        //     `);
+        // })
+        // .on('mouseleave', () => {
+        //   d3.select('#tooltip').style('display', 'none');
+        // });
 
     // 2b) Diagonal lines for NA values
-    const cellNa = row.merge(rowEnter).selectAll('.h-cell-na')
-        .data(d => d[1].filter(k => k.value === null));
-
-    const cellNaEnter = cellNa.enter().append('line')
-        .attr('class', 'h-cell-na');
-
-    cellNaEnter.merge(cellNa)
-        .attr('x1', d => vis.xScale(vis.xValue(d)))
-        .attr('x2', d => vis.xScale(vis.xValue(d)) + cellWidth)
-        .attr('y1', vis.yScale.bandwidth())
-        .attr('y2', 0);
+    // const cellNa = row.merge(rowEnter).selectAll('.h-cell-na')
+    //     .data(d => d[1].filter(k => k.value === null));
+    //
+    // const cellNaEnter = cellNa.enter().append('line')
+    //     .attr('class', 'h-cell-na');
+    //
+    // cellNaEnter.merge(cellNa)
+    //     .attr('x1', d => vis.xScale(vis.xValue(d)))
+    //     .attr('x2', d => vis.xScale(vis.xValue(d)) + cellWidth)
+    //     .attr('y1', vis.yScale.bandwidth())
+    //     .attr('y2', 0);
 
     // Set the positions of the annotations
-    const xVaccineIntroduced = vis.xScale(vis.config.vaccineIntroduced);
-    vis.vaccineLine
-        .attr('x1', xVaccineIntroduced)
-        .attr('x2', xVaccineIntroduced)
-        .attr('y1', -5)
-        .attr('y2', vis.config.height);
+    // const xVaccineIntroduced = vis.xScale(vis.config.vaccineIntroduced);
+    // vis.vaccineLine
+    //     .attr('x1', xVaccineIntroduced)
+    //     .attr('x2', xVaccineIntroduced)
+    //     .attr('y1', -5)
+    //     .attr('y2', vis.config.height);
+    //
+    // vis.vaccineLabel.attr('x', xVaccineIntroduced);
 
-    vis.vaccineLabel.attr('x', xVaccineIntroduced);
-    
     // Update axis
     vis.xAxisG.call(vis.xAxis);
   }

@@ -7,7 +7,7 @@ class Geographic {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data) {
+    constructor(_config, _data, _dispatcher) {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 750,
@@ -16,6 +16,7 @@ class Geographic {
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
+      this.dispatcher = _dispatcher
       this.initVis();
     }
     
@@ -86,6 +87,8 @@ class Geographic {
           .attr('y', 0)
           .attr('dy', '.71em')
           .text('Hours');
+
+      vis.updateVis()
     }
   
     /**

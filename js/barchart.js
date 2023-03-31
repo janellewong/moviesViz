@@ -5,7 +5,7 @@ class BarChart {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data) {
+    constructor(_config, _data, _dispatcher) {
       // Configuration object with defaults
       this.config = {
         parentElement: _config.parentElement,
@@ -15,6 +15,8 @@ class BarChart {
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
+      this.dispatcher = _dispatcher;
+      this.globalFilter = "all";
       this.initVis();
     }
     
@@ -62,6 +64,8 @@ class BarChart {
       // Append y-axis group 
       vis.yAxisG = vis.chart.append('g')
           .attr('class', 'axis y-axis');
+
+      vis.updateVis();
     }
   
     /**

@@ -5,6 +5,14 @@ let BudgetFilterValues = {
   max: 356000000
 }
 
+const dispatcher = d3.dispatch(
+    'barchartFiltersScatterPlot',
+    'barchartFiltersHeatmap',
+    'heatmapFiltersBarchart',
+    'heatmapFiltersScatterPlot'
+
+);
+
 // TODO: Instantiate charts with global filter slider
 
 /**
@@ -31,19 +39,22 @@ d3.csv('data/movies-processed.csv')
 
   data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
 
-  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered); // put the filtered data in since we don't want unknowns in the scatterplot
-  scatterplot.updateVis();
+  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
+  barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
+  heatmap = new Heatmap({parentElement: '#heatmap',}, data, dispatcher);
+  geographic = new Geographic({parentElement: '#geographic-map',}, data, dispatcher);
 
-  barchart = new BarChart({parentElement: '#bar-chart',}, data);
-  barchart.updateVis();
+  d3.select('#slider1 #slider2').on('change', function() {
+    scatterplot.data = data
+    barchart.data = data
+    heatmap.data = data
+    geographic.data = data
 
-  heatmap = new Heatmap({parentElement: '#heatmap',}, data);
-  heatmap.updateVis();
-
-  geographic = new Geographic({parentElement: '#geographic-map',}, data);
-  geographic.updateVis();
-
-
+    scatterplot.updateVis()
+    barchart.updateVis()
+    heatmap.updateVis()
+    geographic.updateVis()
+  })
 
 }).catch(error => console.error(error));
 
@@ -52,6 +63,8 @@ d3.csv('data/movies-processed.csv')
 Slider:
 
 Get values from sliders when used and update BudgetFilterValues global filter min and max
+
+Code referenced from:
  */
 function controlSlider(fromSlider, toSlider) {
   let fromVal = fromSlider.value
