@@ -41,19 +41,11 @@ body {
     padding: 10px;
   }
 
-  .bottom-right-box {
-    margin-left: 20px;
-    border-style: solid;
-    border-radius: 5px;
-    border-color:#ddd;
-
-    padding: 10px;
-  }
   .bottom-left-box {
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
-
+    margin-bottom: 20px;
     padding: 10px;
   }
 
