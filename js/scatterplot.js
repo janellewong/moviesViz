@@ -8,7 +8,7 @@ class ScatterPlot {
     constructor(_config, _data) {
       this.config = {
         parentElement: _config.parentElement,
-        containerWidth: _config.containerWidth || 500,
+        containerWidth: _config.containerWidth || 1100,
         containerHeight: _config.containerHeight || 300,
         margin: _config.margin || {top: 50, right: 25, bottom: 20, left: 25},
         tooltipPadding: _config.tooltipPadding || 15
@@ -105,7 +105,7 @@ class ScatterPlot {
   
       // Set the scale input domains
       vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
-      vis.yScale.domain([1, d3.max(vis.data, vis.yValue)]);
+      vis.yScale.domain([1, 10]);
   
       vis.renderVis();
     }
