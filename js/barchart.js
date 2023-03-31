@@ -9,9 +9,9 @@ class BarChart {
       // Configuration object with defaults
       this.config = {
         parentElement: _config.parentElement,
-        containerWidth: _config.containerWidth || 500,
+        containerWidth: _config.containerWidth || 707,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 10, right: 5, bottom: 25, left: 30},
+        margin: _config.margin || {top: 10, right: 5, bottom: 25 + 50, left: 30},
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -42,8 +42,7 @@ class BarChart {
   
       vis.yAxis = d3.axisLeft(vis.yScale)
           .ticks(6)
-          .tickSizeOuter(0)
-          .tickFormat(d3.formatPrefix('.0s', 1e6)); // Format y-axis ticks as millions
+          .tickSizeOuter(0);
   
       // Define size of SVG drawing area
       vis.svg = d3.select(vis.config.parentElement)
@@ -52,7 +51,7 @@ class BarChart {
   
       // SVG Group containing the actual chart; D3 margin convention
       vis.chart = vis.svg.append('g')
-          .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+          .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top + 25})`);
   
       // Append empty x-axis group and move it to the bottom of the chart
       vis.xAxisG = vis.chart.append('g')
@@ -62,6 +61,34 @@ class BarChart {
       // Append y-axis group 
       vis.yAxisG = vis.chart.append('g')
           .attr('class', 'axis y-axis');
+
+      // Append both axis titles
+      vis.chart.append('text')
+          .attr('class', 'axis-title')
+          .attr('y', vis.height + 30)
+          .attr('x', vis.width - 20)
+          .attr('dy', '.71em')
+          .style('text-anchor', 'end')
+          .style("font-weight", "bold")
+          .text('Certificates');
+  
+      vis.svg.append('text')
+          .attr('class', 'axis-title')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('dy', '.71em')
+          .style("font-weight", "bold")
+          .attr('transform', `translate(0, 25)`)
+          .text('Count of Movies');
+
+      vis.svg.append('text')
+          .attr('class', 'chart-title')
+          .attr('x', vis.width/2 - vis.config.margin.left - vis.config.margin.right - 5)
+          .attr('y', 0)
+          .style('font-size', '20px')
+          .style("font-weight", "bold")
+          .text('Movie Certificates')
+          .attr('transform', `translate(0, 25)`);
     }
   
     /**
@@ -70,18 +97,34 @@ class BarChart {
     updateVis() {
       let vis = this;
   
-      // Reverse column order depending on user selection
-      if (vis.config.reverseOrder) {
-        vis.data.reverse();
-      }
+      // Prepare data: count number of people in each difficulty category
+      // i.e. [{ key: 'easy', count: 10 }, {key: 'intermediate', ...
+      const aggregatedDataMap = d3.rollups(vis.data, v => v.length, d => d.Certificate);
+      vis.aggregatedData = Array.from(aggregatedDataMap, ([key, count]) => ({ key, count }));
+
+      const orderedKeys = ['PG-13',
+        'PG',
+        'R',
+        'TV-14',
+        'TV-MA',
+        'TV-PG',
+        'TV-Y7',
+        'NC-17',
+        'TV-G',
+        'G',
+        'Not Rated'];
+      vis.aggregatedData = vis.aggregatedData.sort((a,b) => {
+        return orderedKeys.indexOf(a.key) - orderedKeys.indexOf(b.key);
+      });
   
-      // Specificy x- and y-accessor functions
-      vis.xValue = d => d.region;
-      vis.yValue = d => d.population;
+      // Specificy accessor functions
+      vis.xValue = d => d.key;
+      vis.yValue = d => d.count;
+      console.log(vis.aggregatedData.map(vis.xValue));
   
       // Set the scale input domains
-      vis.xScale.domain(vis.data.map(vis.xValue));
-      vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
+      vis.xScale.domain(vis.aggregatedData.map(vis.xValue));
+      vis.yScale.domain([0, d3.max(vis.aggregatedData, vis.yValue)]);
   
       vis.renderVis();
     }
@@ -94,40 +137,37 @@ class BarChart {
   
       // Add rectangles
       let bars = vis.chart.selectAll('.bar')
-          .data(vis.data, vis.xValue)
+          .data(vis.aggregatedData, vis.xValue)
         .join('rect');
       
-      bars.style('opacity', 0.5)
-        .transition().duration(1000)
-          .style('opacity', 1)
+      bars.style('opacity', 1)
           .attr('class', 'bar')
           .attr('x', d => vis.xScale(vis.xValue(d)))
           .attr('width', vis.xScale.bandwidth())
           .attr('height', d => vis.height - vis.yScale(vis.yValue(d)))
           .attr('y', d => vis.yScale(vis.yValue(d)))
+          .style("fill", "green")
+        .style("fill-opacity", 0.35);
       
-      // Tooltip event listeners
-      bars
-          .on('mouseover', (event,d) => {
-            d3.select('#tooltip')
-              .style('opacity', 1)
-              // Format number with million and thousand separator
-              .html(`<div class="tooltip-label">Population</div>${d3.format(',')(d.population)}`);
-          })
-          .on('mousemove', (event) => {
-            d3.select('#tooltip')
-              .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
-              .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-          })
-          .on('mouseleave', () => {
-            d3.select('#tooltip').style('opacity', 0);
-          });
+      // // Tooltip event listeners
+      // bars
+      //     .on('mouseover', (event,d) => {
+      //       d3.select('#tooltip')
+      //         .style('opacity', 1)
+      //         // Format number with million and thousand separator
+      //         .html(`<div class="tooltip-label">Population</div>${d3.format(',')(d.population)}`);
+      //     })
+      //     .on('mousemove', (event) => {
+      //       d3.select('#tooltip')
+      //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
+      //         .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+      //     })
+      //     .on('mouseleave', () => {
+      //       d3.select('#tooltip').style('opacity', 0);
+      //     });
   
       // Update axes
-      vis.xAxisG
-          .transition().duration(1000)
-          .call(vis.xAxis);
-  
+      vis.xAxisG.call(vis.xAxis);
       vis.yAxisG.call(vis.yAxis);
     }
   }
