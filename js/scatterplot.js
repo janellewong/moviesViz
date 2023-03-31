@@ -10,7 +10,7 @@ class ScatterPlot {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 500,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 25, right: 20, bottom: 20, left: 35},
+        margin: _config.margin || {top: 50, right: 25, bottom: 20, left: 25},
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -27,11 +27,6 @@ class ScatterPlot {
       vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
       vis.height = vis.config.containerHeight - vis.config.margin.top - vis.config.margin.bottom;
   
-      // Initialize scales
-      vis.colorScale = d3.scaleOrdinal()
-          .range(['#d3eecd', '#7bc77e', '#2a8d46']) // light green to dark green
-          .domain(['Easy','Intermediate','Difficult']);
-  
       vis.xScale = d3.scaleLinear()
           .range([0, vis.width]);
   
@@ -41,15 +36,15 @@ class ScatterPlot {
       // Initialize axes
       vis.xAxis = d3.axisBottom(vis.xScale)
           .ticks(6)
-          .tickSize(-vis.height - 10)
+          .tickSize(0)
           .tickPadding(10)
-          .tickFormat(d => d + ' km');
+          .tickFormat(d3.format(".2s"));
   
       vis.yAxis = d3.axisLeft(vis.yScale)
-          .ticks(6)
+          .ticks(8)
           .tickSize(-vis.width - 10)
           .tickPadding(10);
-  
+        
       // Define size of SVG drawing area
       vis.svg = d3.select(vis.config.parentElement)
           .attr('width', vis.config.containerWidth)
@@ -76,14 +71,26 @@ class ScatterPlot {
           .attr('x', vis.width + 10)
           .attr('dy', '.71em')
           .style('text-anchor', 'end')
-          .text('Distance');
+          .style("font-weight", "bold")
+          .text('Budget (in millions of USD)');
   
       vis.svg.append('text')
           .attr('class', 'axis-title')
           .attr('x', 0)
           .attr('y', 0)
           .attr('dy', '.71em')
-          .text('Hours');
+          .style("font-weight", "bold")
+          .text('Ratings')
+          .attr('transform', `translate(0, 25)`);
+
+      vis.svg.append('text')
+          .attr('class', 'chart-title')
+          .attr('x', vis.width/2 - vis.config.margin.left - vis.config.margin.right - 5)
+          .attr('y', 0)
+          .style('font-size', '20px')
+          .style("font-weight", "bold")
+          .text('Ratings vs Budget')
+          .attr('transform', `translate(0, 25)`);
     }
   
     /**
@@ -93,13 +100,12 @@ class ScatterPlot {
       let vis = this;
       
       // Specificy accessor functions
-      vis.colorValue = d => d.difficulty;
-      vis.xValue = d => d.time;
-      vis.yValue = d => d.distance;
+      vis.xValue = d => d.Budget;
+      vis.yValue = d => d.Rating;
   
       // Set the scale input domains
       vis.xScale.domain([0, d3.max(vis.data, vis.xValue)]);
-      vis.yScale.domain([0, d3.max(vis.data, vis.yValue)]);
+      vis.yScale.domain([1, d3.max(vis.data, vis.yValue)]);
   
       vis.renderVis();
     }
@@ -118,7 +124,8 @@ class ScatterPlot {
           .attr('r', 4)
           .attr('cy', d => vis.yScale(vis.yValue(d)))
           .attr('cx', d => vis.xScale(vis.xValue(d)))
-          .attr('fill', d => vis.colorScale(vis.colorValue(d)));
+          .style("fill", "green")
+        .style("fill-opacity", 0.35);
   
       // Tooltip event listeners
       circles
@@ -128,12 +135,14 @@ class ScatterPlot {
               .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
               .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
               .html(`
-                <div class="tooltip-title">${d.trail}</div>
-                <div><i>${d.region}</i></div>
+                <div class="tooltip-title">${d.Title}</div>
+                <div><i>${d.Month} ${d.Year}</i></div>
                 <ul>
-                  <li>${d.distance} km, ~${d.time} hours</li>
-                  <li>${d.difficulty}</li>
-                  <li>${d.season}</li>
+                  <li><b>Rating:</b> ${d.Rating}/10</li>
+                  <li><b>Certificate:</b>  ${d.Certificate}</li>
+                  <li><b>Budget:</b> USD $${d.Budget} </li>
+                  <li><b>Country of Origin:</b>  ${d.Country_of_origin}</li>
+
                 </ul>
               `);
           })
