@@ -5,7 +5,7 @@ class ScatterPlot {
      * @param {Object}
      * @param {Array}
      */
-    constructor(_config, _data) {
+    constructor(_config, _data, _dispatcher) {
       this.config = {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 1100,
@@ -14,6 +14,7 @@ class ScatterPlot {
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
+      this.dispatcher = _dispatcher
       this.initVis();
     }
     
@@ -91,6 +92,8 @@ class ScatterPlot {
           .style("font-weight", "bold")
           .text('Ratings vs Budget')
           .attr('transform', `translate(0, 25)`);
+
+      vis.updateVis();
     }
   
     /**
