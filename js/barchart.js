@@ -9,9 +9,9 @@ class BarChart {
       // Configuration object with defaults
       this.config = {
         parentElement: _config.parentElement,
-        containerWidth: _config.containerWidth || 707,
+        containerWidth: _config.containerWidth || 1100,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 10, right: 5, bottom: 25 + 50, left: 30},
+        margin: _config.margin || {top: 10, right: 25, bottom: 25 + 50, left: 35},
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -40,10 +40,12 @@ class BarChart {
           .paddingInner(0.2);
   
       vis.xAxis = d3.axisBottom(vis.xScale)
-          .tickSizeOuter(0);
+          .tickSizeOuter(0)
+          .tickSize(0);
   
       vis.yAxis = d3.axisLeft(vis.yScale)
           .ticks(6)
+          .tickSize(-vis.width - 10)
           .tickSizeOuter(0);
   
       // Define size of SVG drawing area
@@ -62,7 +64,8 @@ class BarChart {
       
       // Append y-axis group 
       vis.yAxisG = vis.chart.append('g')
-          .attr('class', 'axis y-axis');
+          .attr('class', 'axis y-axis')
+          .attr('transform', `translate(-5,0)`);
 
       // Append both axis titles
       vis.chart.append('text')
@@ -150,9 +153,8 @@ class BarChart {
           .attr('width', vis.xScale.bandwidth())
           .attr('height', d => vis.height - vis.yScale(vis.yValue(d)))
           .attr('y', d => vis.yScale(vis.yValue(d)))
-          .style("fill", "green")
-        .style("fill-opacity", 0.35);
-
+          .style("fill", "#00AB41");
+      
       // // Tooltip event listeners
       // bars
       //     .on('mouseover', (event,d) => {
@@ -163,7 +165,7 @@ class BarChart {
       //     })
       //     .on('mousemove', (event) => {
       //       d3.select('#tooltip')
-      //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+      //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
       //         .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
       //     })
       //     .on('mouseleave', () => {
