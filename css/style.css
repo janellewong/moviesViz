@@ -49,6 +49,10 @@ body {
     padding: 10px;
   }
 
+  #heatmap {
+    height: 500px;
+  }
+
 /* Tooltip */
 #tooltip {
   position: absolute;

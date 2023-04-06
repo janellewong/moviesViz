@@ -9,13 +9,14 @@ class Heatmap {
     this.config = {
       parentElement: _config.parentElement,
       vaccineIntroduced: _config.vaccineIntroduced,
-      containerWidth: 250,
+      containerWidth: 300,
       containerHeight: 300,
       tooltipPadding: 15,
       margin: {top: 60, right: 20, bottom: 20, left: 45},
       legendWidth: 160,
       legendBarHeight: 10,
-      months: {'January': 0,
+      months: {
+        'January': 0,
         'February': 1,
         'March': 2,
         'April': 3,
@@ -27,6 +28,20 @@ class Heatmap {
         'October': 9,
         'November': 10,
         'December': 11
+      },
+      months_initial: {
+        'Jan': 0,
+        'Feb': 1,
+        'Mar': 2,
+        'Apr': 3,
+        'May': 4,
+        'Jun': 5,
+        'Jul': 6,
+        'Aug': 7,
+        'Sep': 8,
+        'Oct': 9,
+        'Nov': 10,
+        'Dec': 11
       }
     }
     this.data = _data;
@@ -60,37 +75,53 @@ class Heatmap {
     // vis.vaccineLine = vis.chartArea.append('line')
     //     .attr('class', 'vaccine-line');
 
-    vis.vaccineLabel = vis.chartArea.append('text')
-        .attr('class', 'vaccine-label')
-        .attr('text-anchor', 'middle')
-        .attr('y', -20)
-        .attr('dy', '0.85em')
-        .text('Vaccine introduced');
+    // vis.vaccineLabel = vis.chartArea.append('text')
+    //     .attr('class', 'vaccine-label')
+    //     .attr('text-anchor', 'middle')
+    //     .attr('y', -20)
+    //     .attr('dy', '0.85em')
+    //     .text('Vaccine introduced');
 
     // TODO: may have to fix scales to use scaleBand for month?
     // Initialize scales
     vis.colorScale = d3.scaleSequential()
-        .domain([0,10])
+        .domain([0, 17])
         .interpolator(d3.interpolateReds);
 
-    vis.xScale = d3.scaleLinear()
-        .range([0, vis.config.width]);
+    // vis.xScale = d3.scaleLinear()
+    //     .range([0, vis.config.width]);
 
-    vis.yScale = d3.scaleBand()
+    vis.xScale = d3.scaleTime()
+        .range([0, vis.config.width])
+        // .domain(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep','Oct','Nov','Dec'])
+        // .domain([new Date("0000-01-01"), new Date("0000-12-31")]);
+
+
+    vis.yScale = d3.scaleLinear()
         .range([0, vis.config.height])
-        .paddingInner(0.2);
+        // .paddingInner(0.2);
 
     // Initialize x-axis
-    vis.xAxis = d3.axisBottom(vis.xScale)
-        .ticks(6)
+    vis.xAxis = d3.axisTop(vis.xScale)
+        .ticks(12)
         .tickSize(0)
-        .tickFormat(d3.format('d')) // Remove comma delimiter for thousands
-        .tickPadding(10);
+        .tickFormat(d3.timeFormat('%b'))
+        // .tickPadding(10);
+
+    vis.yAxis = d3.axisLeft(vis.yScale)
+        .ticks(20)
+        // .tickPadding(15)
+        .tickSize(-vis.width)
+        // .tickFormat(d3.format("d"));
 
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chartArea.append('g')
         .attr('class', 'axis x-axis')
-        .attr('transform', `translate(0,${vis.config.height})`);
+        .attr('transform', `translate(0,0)`);
+
+    // vis.yAxisG = vis.chartArea.append('g')
+    //     .attr('class', 'axis y-axis')
+    //     .attr('transform', `translate(0,0)`);
 
     // Legend
     vis.legend = vis.svg.append('g')
@@ -149,7 +180,7 @@ class Heatmap {
       return groupedByMonth
     }
 
-    console.log("groupedMonthDataFunc", vis.groupedMonthData())
+    // console.log("groupedMonthDataFunc", vis.groupedMonthData())
 
     // console.log("groupedDataMonth", vis.groupedData.slice(0,5))
 
@@ -157,12 +188,15 @@ class Heatmap {
     // Specify accessor functions
     vis.yValue = d => d[0]; // get years
     vis.colorValue = d => d.length; // get movie count
-    vis.xValue = d => this.config.months[d.Month]; // get month index
+    vis.xValue = d => this.config.months[d]; // get month index
 
     // console.log(vis.groupedData.map(vis.yValue))
    
     // Set the scale input domains
-    vis.colorScale.domain(vis.groupedData.map(d => vis.colorValue(d[1])));
+    // vis.colorScale.domain(d3.extent(vis.groupedMonthData(), d => {
+    //   console.log('data here: ', d)
+    //   return vis.colorValue(d[1])
+    // }));
     // vis.xScale.domain(d3.extent(vis.data, vis.xValue));
     vis.xScale.domain([0, 11])
     vis.yScale.domain(d3.extent(vis.groupedData.map(vis.yValue)));
@@ -183,7 +217,7 @@ class Heatmap {
     // 1. Level: rows
     const row = vis.chart.selectAll('.h-row')
         .data(vis.groupedMonthData(), d => {
-          console.log('outer: ', d[0])
+          // console.log('outer: ', d[0])
           return d[0]
         });
 
@@ -192,9 +226,12 @@ class Heatmap {
         .attr('class', 'h-row');
 
     // // Enter + update
-    // rowEnter.merge(row)
+    rowEnter.merge(row)
     //   .transition().duration(1000)
-    //     .attr('transform', d => `translate(0,${vis.yScale(vis.yValue(d))})`);
+        .attr('transform', d => {
+          console.log('transform d: ', vis.yValue(d))
+          return `translate(0,${vis.yScale(vis.yValue(d))})`
+        });
 
     // Exit
     row.exit().remove();
@@ -213,7 +250,7 @@ class Heatmap {
     // 2a) Actual cells
     const cell = row.merge(rowEnter).selectAll('.h-cell')
         .data(d => {
-          console.log('inner: ', d[1])
+          // console.log('inner: ', d[1])
 
           return d[1]
         })
@@ -241,42 +278,59 @@ class Heatmap {
     const cellEnter = cell.enter().append('rect')
         .attr('class', 'h-cell');
 
+    let max_count = 0
     // Enter + update
     cellEnter.merge(cell)
-        .attr('height', vis.yScale.bandwidth())
+        .attr('height', cellWidth)
         .attr('width', cellWidth)
         .attr('x', d => {
-          console.log('cellEnter', vis.xScale(vis.xValue(d[1][0])))
+          // console.log('cellEnter', vis.xScale(vis.xValue(d[1][0])))
           // get array of movies for the month
           /*
            d[1] gets the array of movies for the month
            d[1][0] gets the first element in the month array. we use this to get the month that all movies of this
            array (all the other movies in this array will be in the same year and month since that's what we grouped by)
            */
-          return vis.xScale(vis.xValue(d[1][0]))
+          console.log('x val', vis.xScale(vis.xValue(d[0])))
+          return vis.xScale(vis.xValue(d[0]))
+        })
+        .attr('y', d => {
+          // console.log('y', d[1][0].Year)
+          return vis.yScale(d[1][0].Year)
         })
         .attr('fill', d => {
           if (d.value === 0 || d.value === null) {
             return '#fff';
           } else {
-            console.log("movieCount: ", vis.colorScale(vis.colorValue(d[1])))
+            max_count = (vis.colorValue(d[1]) > max_count) ? vis.colorValue(d[1]) : max_count;
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
-        // .on('mouseover', (event,d) => {
-        //   const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
-        //   d3.select('#tooltip')
-        //     .style('display', 'block')
-        //     .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
-        //     .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-        //     .html(`
-        //       <div class='tooltip-title'>${d.state}</div>
-        //       <div>${d.year}: <strong>${value}</strong></div>
-        //     `);
-        // })
-        // .on('mouseleave', () => {
-        //   d3.select('#tooltip').style('display', 'none');
-        // });
+        .on('mouseover', (event,d) => {
+          let movie_count = d[1].length
+          // const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
+          let movie_list = '<ul>'
+          d[1].forEach(movie => {
+            movie_list += '<li>' + movie.Title + '</li>'
+          })
+          movie_list += '</ul>'
+
+          d3.select('#tooltip')
+            .style('display', 'block')
+            .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')
+            .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+            .html(`
+              <div class='tooltip-title'>${d[0]}, ${d[1][0].Year}</div>
+              <div>Number of movies: <strong>${movie_count}</strong><br><br></div>
+              <div>
+                    <strong>Movies:<br></strong>
+                    ${movie_list}
+              </div>
+            `);
+        })
+        .on('mouseleave', () => {
+          d3.select('#tooltip').style('display', 'none');
+        });
 
     // 2b) Diagonal lines for NA values
     // const cellNa = row.merge(rowEnter).selectAll('.h-cell-na')
@@ -300,7 +354,6 @@ class Heatmap {
     //     .attr('y2', vis.config.height);
     //
     // vis.vaccineLabel.attr('x', xVaccineIntroduced);
-
     // Update axis
     vis.xAxisG.call(vis.xAxis);
   }
