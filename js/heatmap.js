@@ -9,7 +9,7 @@ class Heatmap {
     this.config = {
       parentElement: _config.parentElement,
       vaccineIntroduced: _config.vaccineIntroduced,
-      containerWidth: 250,
+      containerWidth: 300,
       containerHeight: 300,
       tooltipPadding: 15,
       margin: {top: 60, right: 20, bottom: 20, left: 45},
@@ -60,32 +60,43 @@ class Heatmap {
     // vis.vaccineLine = vis.chartArea.append('line')
     //     .attr('class', 'vaccine-line');
 
-    vis.vaccineLabel = vis.chartArea.append('text')
-        .attr('class', 'vaccine-label')
-        .attr('text-anchor', 'middle')
-        .attr('y', -20)
-        .attr('dy', '0.85em')
-        .text('Vaccine introduced');
+    // vis.vaccineLabel = vis.chartArea.append('text')
+    //     .attr('class', 'vaccine-label')
+    //     .attr('text-anchor', 'middle')
+    //     .attr('y', -20)
+    //     .attr('dy', '0.85em')
+    //     .text('Vaccine introduced');
 
     // TODO: may have to fix scales to use scaleBand for month?
     // Initialize scales
     vis.colorScale = d3.scaleSequential()
-        .domain([0,10])
+        // .domain([0,10])
         .interpolator(d3.interpolateReds);
 
-    vis.xScale = d3.scaleLinear()
-        .range([0, vis.config.width]);
+    // vis.xScale = d3.scaleLinear()
+    //     .range([0, vis.config.width]);
 
-    vis.yScale = d3.scaleBand()
+    vis.xScale = d3.scaleTime()
+        .range([0, vis.config.width])
+        .domain([new Date("0000-01-01"), new Date("0000-12-31")]);
+
+
+    vis.yScale = d3.scaleLinear()
         .range([0, vis.config.height])
-        .paddingInner(0.2);
+        // .paddingInner(0.2);
 
     // Initialize x-axis
     vis.xAxis = d3.axisBottom(vis.xScale)
-        .ticks(6)
+        .ticks(12)
         .tickSize(0)
-        .tickFormat(d3.format('d')) // Remove comma delimiter for thousands
+        // .tickFormat(d3.format('d')) // Remove comma delimiter for thousands
         .tickPadding(10);
+
+    vis.yAxis = d3.axisLeft(vis.yScale)
+        .ticks(20)
+        .tickPadding(15)
+        .tickSize(-vis.width)
+        .tickFormat(d3.format("d"));
 
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chartArea.append('g')
@@ -149,7 +160,7 @@ class Heatmap {
       return groupedByMonth
     }
 
-    console.log("groupedMonthDataFunc", vis.groupedMonthData())
+    // console.log("groupedMonthDataFunc", vis.groupedMonthData())
 
     // console.log("groupedDataMonth", vis.groupedData.slice(0,5))
 
@@ -192,9 +203,9 @@ class Heatmap {
         .attr('class', 'h-row');
 
     // // Enter + update
-    // rowEnter.merge(row)
+    rowEnter.merge(row)
     //   .transition().duration(1000)
-    //     .attr('transform', d => `translate(0,${vis.yScale(vis.yValue(d))})`);
+        .attr('transform', d => `translate(0,${vis.yScale(vis.yValue(d))})`);
 
     // Exit
     row.exit().remove();
@@ -243,7 +254,7 @@ class Heatmap {
 
     // Enter + update
     cellEnter.merge(cell)
-        .attr('height', vis.yScale.bandwidth())
+        .attr('height', cellWidth)
         .attr('width', cellWidth)
         .attr('x', d => {
           console.log('cellEnter', vis.xScale(vis.xValue(d[1][0])))
@@ -255,11 +266,17 @@ class Heatmap {
            */
           return vis.xScale(vis.xValue(d[1][0]))
         })
+        .attr('y', d => {
+          console.log('y', d[1][0].Year)
+          return vis.yScale(d[1][0].Year)
+        })
         .attr('fill', d => {
           if (d.value === 0 || d.value === null) {
             return '#fff';
           } else {
-            console.log("movieCount: ", vis.colorScale(vis.colorValue(d[1])))
+            console.log("moviecount:", vis.colorValue(d[1]))
+            console.log('movie color:', vis.colorScale(vis.colorValue(d[1])))
+            // console.log("movieCount: ", vis.colorScale(vis.colorValue(d[1])))
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
