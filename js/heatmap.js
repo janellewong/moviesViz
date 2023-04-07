@@ -10,7 +10,7 @@ class Heatmap {
       parentElement: _config.parentElement,
       vaccineIntroduced: _config.vaccineIntroduced,
       containerWidth: 300,
-      containerHeight: 300,
+      containerHeight: 500,
       tooltipPadding: 15,
       margin: {top: 60, right: 20, bottom: 20, left: 45},
       legendWidth: 160,
@@ -28,20 +28,6 @@ class Heatmap {
         'October': 9,
         'November': 10,
         'December': 11
-      },
-      months_initial: {
-        'Jan': 0,
-        'Feb': 1,
-        'Mar': 2,
-        'Apr': 3,
-        'May': 4,
-        'Jun': 5,
-        'Jul': 6,
-        'Aug': 7,
-        'Sep': 8,
-        'Oct': 9,
-        'Nov': 10,
-        'Dec': 11
       }
     }
     this.data = _data;
@@ -71,30 +57,15 @@ class Heatmap {
 
     vis.chart = vis.chartArea.append('g');
 
-    // // Add vaccine annotation
-    // vis.vaccineLine = vis.chartArea.append('line')
-    //     .attr('class', 'vaccine-line');
-
-    // vis.vaccineLabel = vis.chartArea.append('text')
-    //     .attr('class', 'vaccine-label')
-    //     .attr('text-anchor', 'middle')
-    //     .attr('y', -20)
-    //     .attr('dy', '0.85em')
-    //     .text('Vaccine introduced');
-
     // TODO: may have to fix scales to use scaleBand for month?
     // Initialize scales
     vis.colorScale = d3.scaleSequential()
         .domain([0, 17])
         .interpolator(d3.interpolateReds);
 
-    // vis.xScale = d3.scaleLinear()
-    //     .range([0, vis.config.width]);
-
     vis.xScale = d3.scaleTime()
         .range([0, vis.config.width])
-        // .domain(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep','Oct','Nov','Dec'])
-        // .domain([new Date("0000-01-01"), new Date("0000-12-31")]);
+        .domain([new Date("0000-01-01"), new Date("0000-12-31")]);
 
 
     vis.yScale = d3.scaleLinear()
@@ -104,24 +75,26 @@ class Heatmap {
     // Initialize x-axis
     vis.xAxis = d3.axisTop(vis.xScale)
         .ticks(12)
-        .tickSize(0)
-        .tickFormat(d3.timeFormat('%b'))
-        // .tickPadding(10);
+        .tickSize(3)
+        .tickFormat(d => {
+          let date = new Date(2000, d, 1)
+          let date_function = d3.timeFormat('%b')
+          return date_function(date)
+        })
 
     vis.yAxis = d3.axisLeft(vis.yScale)
         .ticks(20)
-        // .tickPadding(15)
-        .tickSize(-vis.width)
-        // .tickFormat(d3.format("d"));
+        .tickSize(3)
+        .tickFormat(d3.format("d"));
 
     // Append empty x-axis group and move it to the bottom of the chart
     vis.xAxisG = vis.chartArea.append('g')
         .attr('class', 'axis x-axis')
-        .attr('transform', `translate(0,0)`);
+        .attr('transform', `translate(10,0)`);
 
-    // vis.yAxisG = vis.chartArea.append('g')
-    //     .attr('class', 'axis y-axis')
-    //     .attr('transform', `translate(0,0)`);
+    vis.yAxisG = vis.chartArea.append('g')
+        .attr('class', 'axis y-axis')
+        .attr('transform', `translate(0,10)`);
 
     // Legend
     vis.legend = vis.svg.append('g')
@@ -161,28 +134,14 @@ class Heatmap {
       return budget >= BudgetFilterValues.min && budget <= BudgetFilterValues.max
     }), d => d.Year);
 
-    // vis.groupedMonthData = d3.groups(vis.groupedData, d => {
-    //   // console.log(d[1])
-    //   return d3.groups(d[1], nested => {
-    //     return nested.Month
-    //   })
-    // })
-
-
     vis.groupedMonthData = () => {
       let groupedByMonth = []
       vis.groupedData.forEach(([year, movies]) => {
         let monthGrouped = d3.groups(movies, d => d.Month)
-        // console.log(monthGroupedAsMap)
-        // groupedByMonth.push([year, Object.assign({}, ...monthGrouped.map((x) => ({[x[0]]: x[1]})))])
         groupedByMonth.push([year, monthGrouped])
       })
       return groupedByMonth
     }
-
-    // console.log("groupedMonthDataFunc", vis.groupedMonthData())
-
-    // console.log("groupedDataMonth", vis.groupedData.slice(0,5))
 
     // TODO: may have to fix accessor functions
     // Specify accessor functions
@@ -190,14 +149,6 @@ class Heatmap {
     vis.colorValue = d => d.length; // get movie count
     vis.xValue = d => this.config.months[d]; // get month index
 
-    // console.log(vis.groupedData.map(vis.yValue))
-   
-    // Set the scale input domains
-    // vis.colorScale.domain(d3.extent(vis.groupedMonthData(), d => {
-    //   console.log('data here: ', d)
-    //   return vis.colorValue(d[1])
-    // }));
-    // vis.xScale.domain(d3.extent(vis.data, vis.xValue));
     vis.xScale.domain([0, 11])
     vis.yScale.domain(d3.extent(vis.groupedData.map(vis.yValue)));
 
@@ -226,53 +177,23 @@ class Heatmap {
         .attr('class', 'h-row');
 
     // // Enter + update
-    rowEnter.merge(row)
-    //   .transition().duration(1000)
-        .attr('transform', d => {
-          console.log('transform d: ', vis.yValue(d))
-          return `translate(0,${vis.yScale(vis.yValue(d))})`
-        });
+    // rowEnter.merge(row)
+    // //   .transition().duration(1000)
+    //     .attr('transform', d => {
+    //       console.log('transform d: ', vis.yValue(d))
+    //       return `translate(0,${vis.yScale(vis.yValue(d))})`
+    //     });
 
     // Exit
     row.exit().remove();
-
-    // Append row label (y-axis)
-    rowEnter.append('text')
-        .attr('class', 'h-label')
-        .attr('text-anchor', 'end')
-        .attr('dy', '0.85em')
-        .attr('x', -8)
-        .text(vis.yValue);
-
 
     // 2. Level: columns
 
     // 2a) Actual cells
     const cell = row.merge(rowEnter).selectAll('.h-cell')
         .data(d => {
-          // console.log('inner: ', d[1])
-
           return d[1]
         })
-        // .data(vis.groupedMonthData(), d => {
-        //   // add movie count for the month for each element
-        //
-        //   // console.log('plain d: ', d)
-        //   // let d_map = new Map(d.map(([v, k]) => [k, v]));
-        //   // let d_map = Object.assign({}, ...d[0].map((x) => ({[x[0]]: x[1]})));
-        //   // console.log("grouped month: ", d_map)
-        //   // let movie_count = vis.colorValue(d[1])
-        //
-        //
-        //   // d[1].map(obj => {
-        //   //   // console.log(obj)
-        //   //   let month = obj.Month
-        //   //   let result = d_map.get(month)
-        //   //   // console.log('result: ', result)
-        //   //   obj['MonthMovieCount'] = movie_count
-        //   // })
-        //   return d[1]
-        // });
 
     // Enter
     const cellEnter = cell.enter().append('rect')
@@ -284,7 +205,6 @@ class Heatmap {
         .attr('height', cellWidth)
         .attr('width', cellWidth)
         .attr('x', d => {
-          // console.log('cellEnter', vis.xScale(vis.xValue(d[1][0])))
           // get array of movies for the month
           /*
            d[1] gets the array of movies for the month
@@ -295,7 +215,6 @@ class Heatmap {
           return vis.xScale(vis.xValue(d[0]))
         })
         .attr('y', d => {
-          // console.log('y', d[1][0].Year)
           return vis.yScale(d[1][0].Year)
         })
         .attr('fill', d => {
@@ -332,30 +251,9 @@ class Heatmap {
           d3.select('#tooltip').style('display', 'none');
         });
 
-    // 2b) Diagonal lines for NA values
-    // const cellNa = row.merge(rowEnter).selectAll('.h-cell-na')
-    //     .data(d => d[1].filter(k => k.value === null));
-    //
-    // const cellNaEnter = cellNa.enter().append('line')
-    //     .attr('class', 'h-cell-na');
-    //
-    // cellNaEnter.merge(cellNa)
-    //     .attr('x1', d => vis.xScale(vis.xValue(d)))
-    //     .attr('x2', d => vis.xScale(vis.xValue(d)) + cellWidth)
-    //     .attr('y1', vis.yScale.bandwidth())
-    //     .attr('y2', 0);
-
-    // Set the positions of the annotations
-    // const xVaccineIntroduced = vis.xScale(vis.config.vaccineIntroduced);
-    // vis.vaccineLine
-    //     .attr('x1', xVaccineIntroduced)
-    //     .attr('x2', xVaccineIntroduced)
-    //     .attr('y1', -5)
-    //     .attr('y2', vis.config.height);
-    //
-    // vis.vaccineLabel.attr('x', xVaccineIntroduced);
     // Update axis
     vis.xAxisG.call(vis.xAxis);
+    vis.yAxisG.call(vis.yAxis);
   }
 
   /**

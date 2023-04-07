@@ -53,6 +53,10 @@ body {
     height: 500px;
   }
 
+.axis line {
+  display: none;
+}
+
 /* Tooltip */
 #tooltip {
   position: absolute;
