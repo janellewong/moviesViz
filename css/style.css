@@ -49,6 +49,14 @@ body {
     padding: 10px;
   }
 
+  #heatmap {
+    height: 500px;
+  }
+
+.axis line {
+  display: none;
+}
+
 /* Tooltip */
 #tooltip {
   position: absolute;
