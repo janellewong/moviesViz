@@ -211,7 +211,7 @@ class Heatmap {
            d[1][0] gets the first element in the month array. we use this to get the month that all movies of this
            array (all the other movies in this array will be in the same year and month since that's what we grouped by)
            */
-          console.log('x val', vis.xScale(vis.xValue(d[0])))
+          // console.log('x val', vis.xScale(vis.xValue(d[0])))
           return vis.xScale(vis.xValue(d[0]))
         })
         .attr('y', d => {
@@ -225,6 +225,8 @@ class Heatmap {
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
+        .classed('selected', false)
+        .attr('stroke', 'none')
         .on('mouseover', (event,d) => {
           let movie_count = d[1].length
           // const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
@@ -249,6 +251,32 @@ class Heatmap {
         })
         .on('mouseleave', () => {
           d3.select('#tooltip').style('display', 'none');
+        })
+        .on('click', function(event, d) {
+          // console.log('onclick function d: ', d)
+
+          const isSelected = d3.select(this).classed('selected');
+          let currRect = d3.select(this)
+          let moviesInMonth = d[1]
+          currRect.classed('selected', !isSelected);
+
+          if (!isSelected) {
+            currRect
+                .attr('stroke', 'green')
+                .attr('stroke-width', '2')
+            moviesInMonth.forEach(movie => {
+              selectedMovies.add(movie.ID)
+            })
+            // console.log(selectedMovies)
+          } else {
+            currRect.attr('stroke', 'none')
+            moviesInMonth.forEach(movie => {
+              selectedMovies.delete(movie.ID)
+            })
+          }
+
+          vis.dispatcher.call('heatmapFiltersScatterAndBar')
+
         });
 
     // Update axis

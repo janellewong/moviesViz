@@ -127,7 +127,7 @@ class BarChart {
       // Specificy accessor functions
       vis.xValue = d => d.key;
       vis.yValue = d => d.count;
-      console.log(vis.aggregatedData.map(vis.xValue));
+      // console.log(vis.aggregatedData.map(vis.xValue));
   
       // Set the scale input domains
       vis.xScale.domain(vis.aggregatedData.map(vis.xValue));
