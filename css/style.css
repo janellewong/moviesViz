@@ -37,7 +37,7 @@ body {
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
-
+    display: flex;
     padding: 10px;
   }
 
@@ -55,6 +55,12 @@ body {
 
 .axis line {
   display: none;
+}
+
+button#heatmap-reset {
+  height: 30px;
+  width: 100px;
+  position: absolute;
 }
 
 /* Tooltip */
