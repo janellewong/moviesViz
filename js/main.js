@@ -15,9 +15,7 @@ let selectedCertificates = new Set();
 const dispatcher = d3.dispatch(
     'barchartFiltersScatterPlot',
     'barchartFiltersHeatmap',
-
-    'heatmapFiltersBarchart',
-    'heatmapFiltersScatterAndBar',
+    'heatmapFiltersAllViz',
 
     'heatmapFiltersBudgetSlider',
     'barchartFiltersBudgetSlider'
@@ -42,7 +40,7 @@ Promise.all([
 
   console.log(allCountries)
 
-  updateGeoData(data)
+  updateGeoData(data, geoData)
 
   // Convert columns to numerical values
   data = data.map(d => {
@@ -91,48 +89,6 @@ function updateAllVis() {
   geographic.updateVis()
 }
 
-// update scatterplot when movies are selected in heatmap
-dispatcher.on('heatmapFiltersScatterAndBar', () => {
-  if (!(selectedMovies.size === 0)) {
-    let newData = data.filter(movie => {
-      return selectedMovies.has(movie.ID)
-    })
-    scatterplot.data = newData
-    barchart.data = newData
-  }
-  else {
-    scatterplot.data = data;
-    barchart.data = data;
-  }
-  scatterplot.updateVis();
-  barchart.updateVis();
-});
-
-function updateGeoData(_data) {
-  let countryMovieCount = getCountForEachFilmLocationCountry(_data);
-
-  let _countryMovieCount = getCountForEachFilmLocationCountry(_data)
-
-  console.log("before",countryMovieCount)
-
-  // let numCountries = 0;
-  geoData.objects.countries.geometries.forEach(country => {
-    let countryName = country.properties.name
-
-    if (countryName in countryMovieCount) {
-      country.properties.count = countryMovieCount[countryName];
-      delete _countryMovieCount[countryName]
-      // console.log('Country: ', country.properties.name)
-      // console.log('count: ', country.properties.count)
-    } else {
-      country.properties.count = 0;
-    }
-  });
-  console.log("after", _countryMovieCount)
-  // console.log('total countries:', numCountries)
-}
-
-
 function resetAllData(_data, _geoData) {
   scatterplot.data = _data
   barchart.data = _data
@@ -147,6 +103,48 @@ function heatmapReset() {
   updateAllVis();
 }
 
+// update scatterplot when movies are selected in heatmap
+dispatcher.on('heatmapFiltersAllViz', () => {
+  if (!(selectedMovies.size === 0)) {
+    let newData = data.filter(movie => {
+      return selectedMovies.has(movie.ID)
+    })
+    scatterplot.data = newData;
+    barchart.data = newData;
+    geographic.data = updateGeoData(newData, geoData);
+  }
+  else {
+    scatterplot.data = data;
+    barchart.data = data;
+    geographic.data = updateGeoData(data, geoData);
+  }
+  scatterplot.updateVis();
+  barchart.updateVis();
+  geographic.updateVis();
+});
+
+function updateGeoData(_data, _geoData) {
+  let countryMovieCount = getCountForEachFilmLocationCountry(_data);
+
+  let _countryMovieCount = getCountForEachFilmLocationCountry(_data)
+  // console.log("before",countryMovieCount)
+
+  // let numCountries = 0;
+  _geoData.objects.countries.geometries.forEach(country => {
+    let countryName = country.properties.name
+
+    if (countryName in countryMovieCount) {
+      country.properties.count = countryMovieCount[countryName];
+      delete _countryMovieCount[countryName]
+    } else {
+      country.properties.count = 0;
+    }
+  });
+  // console.log("after", _countryMovieCount)
+  // console.log('total countries:', numCountries)
+
+  return _geoData
+}
 
 /*
 Slider:

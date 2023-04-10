@@ -275,7 +275,7 @@ class Heatmap {
             })
           }
 
-          vis.dispatcher.call('heatmapFiltersScatterAndBar')
+          vis.dispatcher.call('heatmapFiltersAllViz')
 
         });
 
