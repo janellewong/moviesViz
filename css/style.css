@@ -15,7 +15,7 @@ body {
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
-
+    display: flex;
     padding: 10px;
   }
   
@@ -27,7 +27,6 @@ body {
     border-radius: 5px;
     border-color:#ddd;
     height: 50px;
-
     padding: 10px;
   }
 
@@ -51,6 +50,10 @@ body {
 
   #heatmap {
     height: 500px;
+  }
+
+  #geographic-map {
+    width: 750px;
   }
 
 .axis line {

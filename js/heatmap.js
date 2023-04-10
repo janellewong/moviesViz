@@ -279,6 +279,7 @@ class Heatmap {
 
         });
 
+    // TODO: fix axes so they don't change during global filtering (budget sweeping)
     // Update axis
     vis.xAxisG.call(vis.xAxis);
     vis.yAxisG.call(vis.yAxis);

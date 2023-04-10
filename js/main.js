@@ -1,5 +1,5 @@
 // Global filters
-let data, data_filtered;
+let data, data_filtered, geoData;
 
 let BudgetFilterValues = {
   min: 10,
@@ -28,9 +28,22 @@ const dispatcher = d3.dispatch(
 /**
  * Load data from CSV file asynchronously and render charts
  */
-d3.csv('data/movies-processed.csv')
-  .then(_data => {
-  data = _data;
+Promise.all([
+    d3.csv('data/movies-processed1.csv'),
+    d3.json('data/topo_countries.json')
+]).then(_data => {
+  data = _data[0];
+  geoData = _data[1];
+
+  let allCountries = []
+  geoData.objects.countries.geometries.forEach((d) => {
+    allCountries.push(d.properties.name)
+  })
+
+  console.log(allCountries)
+
+  updateGeoData(data)
+
   // Convert columns to numerical values
   data = data.map(d => {
     Object.keys(d).forEach(attr => {
@@ -50,15 +63,26 @@ d3.csv('data/movies-processed.csv')
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
   heatmap = new Heatmap({parentElement: '#heatmap',}, data, dispatcher);
-  geographic = new Geographic({parentElement: '#geographic-map',}, data, dispatcher);
+  geographic = new Geographic({parentElement: '#geographic-map',}, geoData, dispatcher);
 
   d3.select('#slider1 #slider2').on('change', function() {
-    resetAllData(data);
+    resetAllData(data, geoData);
     updateAllVis();
   })
 
 }).catch(error => console.error(error));
 
+function getCountForEachFilmLocationCountry(_data) {
+   let groupedCountries = d3.groups(_data, d => d.Filming_location);
+   let countryCount = {};
+
+   groupedCountries.forEach(([country, movies]) => {
+     countryCount[country] = movies.length;
+   })
+
+  return countryCount;
+
+}
 
 function updateAllVis() {
   scatterplot.updateVis()
@@ -84,17 +108,42 @@ dispatcher.on('heatmapFiltersScatterAndBar', () => {
   barchart.updateVis();
 });
 
+function updateGeoData(_data) {
+  let countryMovieCount = getCountForEachFilmLocationCountry(_data);
 
-function resetAllData(_data) {
+  let _countryMovieCount = getCountForEachFilmLocationCountry(_data)
+
+  console.log("before",countryMovieCount)
+
+  // let numCountries = 0;
+  geoData.objects.countries.geometries.forEach(country => {
+    let countryName = country.properties.name
+
+    if (countryName in countryMovieCount) {
+      country.properties.count = countryMovieCount[countryName];
+      delete _countryMovieCount[countryName]
+      // console.log('Country: ', country.properties.name)
+      // console.log('count: ', country.properties.count)
+    } else {
+      country.properties.count = 0;
+    }
+  });
+  console.log("after", _countryMovieCount)
+  // console.log('total countries:', numCountries)
+}
+
+
+function resetAllData(_data, _geoData) {
   scatterplot.data = _data
   barchart.data = _data
   heatmap.data = _data
-  geographic.data = _data
+  // geographic.data = _geoData
+  updateGeoData(_data, _geoData)
 }
 
 function heatmapReset() {
   selectedMovies.clear();
-  resetAllData(data);
+  resetAllData(data, geoData);
   updateAllVis();
 }
 
@@ -106,6 +155,7 @@ Get values from sliders when used and update BudgetFilterValues global filter mi
 
 Code referenced from:
  */
+
 function controlSlider(fromSlider, toSlider) {
   let fromVal = fromSlider.value
   let toVal = toSlider.value
@@ -122,7 +172,7 @@ function controlSlider(fromSlider, toSlider) {
     return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
   })
 
-  resetAllData(updatedData);
+  resetAllData(updatedData, geoData);
   updateAllVis();
 
 }
@@ -132,5 +182,3 @@ const toSlider = document.querySelector('#slider2');
 
 fromSlider.oninput = () => controlSlider(fromSlider, toSlider);
 toSlider.oninput = () => controlSlider(fromSlider, toSlider);
-
-
