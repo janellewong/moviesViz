@@ -18,7 +18,7 @@ class Geographic {
             parentElement: _config.parentElement,
             containerWidth: 750,
             containerHeight: 500,
-            margin: _config.margin || {top: 25, right: 20, bottom: 20, left: 35},
+            margin: _config.margin || {top: 60, right: 20, bottom: 20, left: 35},
             tooltipPadding: 15,
             legendBottom: 120,
             legendLeft: 20,
@@ -48,7 +48,20 @@ class Geographic {
         // Append group element that will contain our actual chart
         // and position it according to the given margin config
         vis.chart = vis.svg.append('g')
-            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`);
+            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
+            .text("Film locations");
+
+        vis.svg.append('text')
+            .attr('class', 'chart-title')
+            // .attr('x', vis.config.containerWidth/2 - vis.config.margin.left - vis.config.margin.right - 5)
+            .attr('x', 0)
+            .attr('y', 0)
+            // .style('text-anchor', 'middle')
+            .style('font-size', '20px')
+            .style("font-weight", "bold")
+            .text('Number of Movies by Filming Location')
+            .attr('transform', `translate(0, 25)`);
+
 
         // Initialize projection and path generator
         vis.projection = d3.geoMercator();
