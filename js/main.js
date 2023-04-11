@@ -1,5 +1,5 @@
 // Global filters
-let data, data_filtered, geoData;
+let data, data_filtered, geoData, newData;
 
 let BudgetFilterValues = {
   min: 10,
@@ -14,7 +14,7 @@ let selectedCertificates = new Set();
 
 const dispatcher = d3.dispatch(
     'barchartFiltersScatterPlot',
-    'barchartFiltersHeatmap',
+    'barchartFiltersGeomap',
     'heatmapFiltersAllViz',
 
     'heatmapFiltersBudgetSlider',
@@ -57,6 +57,7 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
+  newData = data; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
@@ -103,10 +104,38 @@ function heatmapReset() {
   updateAllVis();
 }
 
+// update scatterplot when certificates selected in barchart
+dispatcher.on('barchartFiltersScatterPlot', () => {
+  if (!(selectedCertificates.size === 0)) {
+    let updatedData = newData.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+    scatterplot.data = updatedData;
+    scatterplot.updateVis();
+  } else {
+    scatterplot.data = newData;
+    scatterplot.updateVis();
+  }
+});
+
+// update geographic map when certificates selected in barchart
+dispatcher.on('barchartFiltersGeomap', () => {
+  if (!(selectedCertificates.size === 0)) {
+    let updatedData = newData.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+    geographic.data = updateGeoData(updatedData, geoData);
+    geographic.updateVis();
+  } else {
+    geographic.updateGeoData(newData, geoData);
+    geographic.updateVis();
+  }
+});
+
 // update scatterplot when movies are selected in heatmap
 dispatcher.on('heatmapFiltersAllViz', () => {
   if (!(selectedMovies.size === 0)) {
-    let newData = data.filter(movie => {
+    newData = data.filter(movie => {
       return selectedMovies.has(movie.ID)
     })
     scatterplot.data = newData;
@@ -119,6 +148,7 @@ dispatcher.on('heatmapFiltersAllViz', () => {
     geographic.data = updateGeoData(data, geoData);
   }
   scatterplot.updateVis();
+  selectedCertificates.clear();
   barchart.updateVis();
   geographic.updateVis();
 });
@@ -155,8 +185,8 @@ Code referenced from:
  */
 
 function controlSlider(fromSlider, toSlider) {
-  let fromVal = fromSlider.value
-  let toVal = toSlider.value
+  let fromVal = parseFloat(fromSlider.value);
+  let toVal = parseFloat(toSlider.value);
 
   if (fromVal > toVal) {
     BudgetFilterValues.max = fromVal
@@ -165,6 +195,8 @@ function controlSlider(fromSlider, toSlider) {
     BudgetFilterValues.max = toVal
     BudgetFilterValues.min = fromVal
   }
+  parsedValues = fromVal + " ~ " + toVal;
+  document.getElementById("sliderValues").value = parsedValues;
 
   let updatedData = data.filter(movie => {
     return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)

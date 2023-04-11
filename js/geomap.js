@@ -16,8 +16,8 @@ class Geographic {
     constructor(_config, _data, _dispatcher) {
         this.config = {
             parentElement: _config.parentElement,
-            containerWidth: 750,
-            containerHeight: 500,
+            containerWidth: 800,
+            containerHeight: 600,
             margin: _config.margin || {top: 60, right: 20, bottom: 20, left: 35},
             tooltipPadding: 15,
             legendBottom: 120,
