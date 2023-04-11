@@ -166,22 +166,23 @@ class BarChart {
             vis.dispatcher.call('barchartFiltersGeomap');
           });
       
-      // // Tooltip event listeners
-      // bars
-      //     .on('mouseover', (event,d) => {
-      //       d3.select('#tooltip')
-      //         .style('opacity', 1)
-      //         // Format number with million and thousand separator
-      //         .html(`<div class="tooltip-label">Population</div>${d3.format(',')(d.population)}`);
-      //     })
-      //     .on('mousemove', (event) => {
-      //       d3.select('#tooltip')
-      //         .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
-      //         .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
-      //     })
-      //     .on('mouseleave', () => {
-      //       d3.select('#tooltip').style('opacity', 0);
-      //     });
+      // Tooltip event listeners
+      bars
+        .on('mouseover', (event,d) => {
+          // if (selectedGenderFilter.length == 0 || selectedGenderFilter.includes(d.gender)) {
+            d3.select('#tooltip')
+              .style('display', 'block')
+              .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   
+              .style('top', (event.pageY + vis.config.tooltipPadding) + 'px')
+              .html(`
+                <div class="tooltip-title">Certificate: ${d.key}</div>
+                <div><i>Movie Count: ${d.count}</i></div>
+              `);
+          }
+        )
+        .on('mouseleave', () => {
+          d3.select('#tooltip').style('display', 'none');
+        });
   
       // Update axes
       vis.xAxisG.call(vis.xAxis);
