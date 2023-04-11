@@ -127,7 +127,7 @@ dispatcher.on('barchartFiltersGeomap', () => {
     geographic.data = updateGeoData(updatedData, geoData);
     geographic.updateVis();
   } else {
-    geographic.updateGeoData(newData, geoData);
+    geographic.data = updateGeoData(newData, geoData);
     geographic.updateVis();
   }
 });
