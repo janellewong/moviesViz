@@ -177,8 +177,8 @@ Code referenced from:
  */
 
 function controlSlider(fromSlider, toSlider) {
-  let fromVal = fromSlider.value
-  let toVal = toSlider.value
+  let fromVal = parseFloat(fromSlider.value);
+  let toVal = parseFloat(toSlider.value);
 
   if (fromVal > toVal) {
     BudgetFilterValues.max = fromVal
@@ -191,7 +191,7 @@ function controlSlider(fromSlider, toSlider) {
   document.getElementById("sliderValues").value = parsedValues;
 
   let updatedData = data.filter(movie => {
-    return (movie.Budget >= BudgetFilterValues.min)
+    return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
   })
 
   resetAllData(updatedData, geoData);
