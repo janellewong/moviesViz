@@ -11,7 +11,7 @@ class BarChart {
         parentElement: _config.parentElement,
         containerWidth: _config.containerWidth || 1100,
         containerHeight: _config.containerHeight || 300,
-        margin: _config.margin || {top: 10, right: 25, bottom: 25 + 50, left: 35},
+        margin: _config.margin || {top: 20, right: 25, bottom: 25 + 50, left: 35},
         tooltipPadding: _config.tooltipPadding || 15
       }
       this.data = _data;
@@ -147,13 +147,26 @@ class BarChart {
           .data(vis.aggregatedData, vis.xValue)
         .join('rect');
       
-      bars.style('opacity', 1)
+      bars.attr('opacity', 1)
           .attr('class', 'bar')
           .attr('x', d => vis.xScale(vis.xValue(d)))
           .attr('width', vis.xScale.bandwidth())
           .attr('height', d => vis.height - vis.yScale(vis.yValue(d)))
           .attr('y', d => vis.yScale(vis.yValue(d)))
-          .style("fill", "#00AB41");
+          .attr("fill", "#00AB41")
+          .on('click', function(event, d) {
+            const isActive = selectedCertificates.has(d.key);
+            if (isActive) {
+               selectedCertificates.delete(d.key); // Remove filter
+            } else {
+              selectedCertificates = new Set();
+              selectedCertificates.add(d.key); // Append filter
+            }
+            d3.selectAll('.bar').classed('active', false)
+            d3.select(this).classed('active', !isActive);
+            console.log(selectedCertificates);
+            // selectedCandidateFilter = new Set();
+          });
       
       // // Tooltip event listeners
       // bars
