@@ -14,7 +14,7 @@ let selectedCertificates = new Set();
 
 const dispatcher = d3.dispatch(
     'barchartFiltersScatterPlot',
-    'barchartFiltersHeatmap',
+    'barchartFiltersGeomap',
     'heatmapFiltersAllViz',
 
     'heatmapFiltersBudgetSlider',
@@ -118,17 +118,17 @@ dispatcher.on('barchartFiltersScatterPlot', () => {
   }
 });
 
-// update heatmap when certificates selected in barchart
-dispatcher.on('barchartFiltersHeatmap', () => {
+// update geographic map when certificates selected in barchart
+dispatcher.on('barchartFiltersGeomap', () => {
   if (!(selectedCertificates.size === 0)) {
     let updatedData = newData.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
-    heatmap.data = updatedData;
-    heatmap.updateVis();
+    geographic.data = updateGeoData(updatedData, geoData);
+    geographic.updateVis();
   } else {
-    heatmap.data = newData;
-    heatmap.updateVis();
+    geographic.updateGeoData(newData, geoData);
+    geographic.updateVis();
   }
 });
 

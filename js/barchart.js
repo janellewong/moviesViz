@@ -163,6 +163,7 @@ class BarChart {
             d3.select(this).classed('active', !isActive);
             console.log(selectedCertificates);
             vis.dispatcher.call('barchartFiltersScatterPlot');
+            vis.dispatcher.call('barchartFiltersGeomap');
           });
       
       // // Tooltip event listeners
