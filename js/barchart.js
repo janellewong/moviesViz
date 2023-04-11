@@ -162,9 +162,11 @@ class BarChart {
               selectedCertificates = new Set();
               selectedCertificates.add(d.key); // Append filter
             }
-            d3.selectAll('.bar').classed('active', false)
+            d3.selectAll('.bar').classed('active', false);
             d3.select(this).classed('active', !isActive);
             console.log(selectedCertificates);
+            vis.dispatcher.call('barchartFiltersScatterPlot');
+            vis.dispatcher.call('barchartFiltersHeatmap');
             // selectedCandidateFilter = new Set();
           });
       

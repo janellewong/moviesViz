@@ -169,3 +169,12 @@ input[type="range"] {
   height: 0;
   z-index: 1;
 }
+
+.bar:hover {
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.bar.active {
+  fill: #1f2053;
+}

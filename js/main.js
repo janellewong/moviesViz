@@ -103,6 +103,28 @@ function heatmapReset() {
   updateAllVis();
 }
 
+// update scatterplot when certificates selected in barchart
+dispatcher.on('barchartFiltersScatterPlot', () => {
+  if (!(selectedCertificates.size === 0)) {
+    let updatedData = data.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+    scatterplot.data = updatedData;
+    scatterplot.updateVis();
+  }
+});
+
+// update heatmap when certificates selected in barchart
+dispatcher.on('barchartFiltersHeatmap', () => {
+  if (!(selectedCertificates.size === 0)) {
+    let updatedData = data.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+    heatmap.data = updatedData;
+    heatmap.updateVis();
+  }
+});
+
 // update scatterplot when movies are selected in heatmap
 dispatcher.on('heatmapFiltersAllViz', () => {
   if (!(selectedMovies.size === 0)) {
@@ -165,9 +187,11 @@ function controlSlider(fromSlider, toSlider) {
     BudgetFilterValues.max = toVal
     BudgetFilterValues.min = fromVal
   }
+  parsedValues = fromVal + " ~ " + toVal;
+  document.getElementById("sliderValues").value = parsedValues;
 
   let updatedData = data.filter(movie => {
-    return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
+    return (movie.Budget >= BudgetFilterValues.min)
   })
 
   resetAllData(updatedData, geoData);
