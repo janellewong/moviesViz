@@ -153,21 +153,16 @@ class BarChart {
           .attr('width', vis.xScale.bandwidth())
           .attr('height', d => vis.height - vis.yScale(vis.yValue(d)))
           .attr('y', d => vis.yScale(vis.yValue(d)))
-          .attr("fill", "#00AB41")
           .on('click', function(event, d) {
             const isActive = selectedCertificates.has(d.key);
             if (isActive) {
                selectedCertificates.delete(d.key); // Remove filter
             } else {
-              selectedCertificates = new Set();
               selectedCertificates.add(d.key); // Append filter
             }
-            d3.selectAll('.bar').classed('active', false);
             d3.select(this).classed('active', !isActive);
             console.log(selectedCertificates);
             vis.dispatcher.call('barchartFiltersScatterPlot');
-            vis.dispatcher.call('barchartFiltersHeatmap');
-            // selectedCandidateFilter = new Set();
           });
       
       // // Tooltip event listeners

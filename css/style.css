@@ -170,6 +170,10 @@ input[type="range"] {
   z-index: 1;
 }
 
+.bar {
+  fill: #00AB41;
+}
+
 .bar:hover {
   stroke: #000;
   stroke-width: 2;

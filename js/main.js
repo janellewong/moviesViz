@@ -1,5 +1,5 @@
 // Global filters
-let data, data_filtered, geoData;
+let data, data_filtered, geoData, newData;
 
 let BudgetFilterValues = {
   min: 10,
@@ -57,6 +57,7 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
+  newData = data; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
@@ -106,10 +107,13 @@ function heatmapReset() {
 // update scatterplot when certificates selected in barchart
 dispatcher.on('barchartFiltersScatterPlot', () => {
   if (!(selectedCertificates.size === 0)) {
-    let updatedData = data.filter(movie => {
+    let updatedData = newData.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
     scatterplot.data = updatedData;
+    scatterplot.updateVis();
+  } else {
+    scatterplot.data = newData;
     scatterplot.updateVis();
   }
 });
@@ -117,10 +121,13 @@ dispatcher.on('barchartFiltersScatterPlot', () => {
 // update heatmap when certificates selected in barchart
 dispatcher.on('barchartFiltersHeatmap', () => {
   if (!(selectedCertificates.size === 0)) {
-    let updatedData = data.filter(movie => {
+    let updatedData = newData.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
     heatmap.data = updatedData;
+    heatmap.updateVis();
+  } else {
+    heatmap.data = newData;
     heatmap.updateVis();
   }
 });
@@ -128,7 +135,7 @@ dispatcher.on('barchartFiltersHeatmap', () => {
 // update scatterplot when movies are selected in heatmap
 dispatcher.on('heatmapFiltersAllViz', () => {
   if (!(selectedMovies.size === 0)) {
-    let newData = data.filter(movie => {
+    newData = data.filter(movie => {
       return selectedMovies.has(movie.ID)
     })
     scatterplot.data = newData;
@@ -141,6 +148,7 @@ dispatcher.on('heatmapFiltersAllViz', () => {
     geographic.data = updateGeoData(data, geoData);
   }
   scatterplot.updateVis();
+  selectedCertificates.clear();
   barchart.updateVis();
   geographic.updateVis();
 });
