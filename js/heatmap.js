@@ -275,10 +275,11 @@ class Heatmap {
             })
           }
 
-          vis.dispatcher.call('heatmapFiltersScatterAndBar')
+          vis.dispatcher.call('heatmapFiltersAllViz')
 
         });
 
+    // TODO: fix axes so they don't change during global filtering (budget sweeping)
     // Update axis
     vis.xAxisG.call(vis.xAxis);
     vis.yAxisG.call(vis.yAxis);
