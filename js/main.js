@@ -118,7 +118,9 @@ function updateBarChart() {
   }
   if (!(selectedCountries.size === 0)) {
     geoMapFilterData = heatMapFilterData.filter(movie => {
-      return (selectedCountries.has(movie.Country_of_origin))
+      return (movie.Country_of_origin.some(country => {
+        selectedMovies.has(country)
+      }))
     })
   } else {
     geoMapFilterData = heatMapFilterData
@@ -146,7 +148,9 @@ function updateScatterPlot() {
   }
   if (!(selectedCountries.size === 0)) {
     geoMapFilterData = barChartFilterData.filter(movie => {
-      return (selectedCountries.has(movie.Country_of_origin))
+      return (movie.Country_of_origin.some(country => {
+        selectedMovies.has(country)
+      }))
     })
   } else {
     geoMapFilterData = barChartFilterData
@@ -188,7 +192,9 @@ function updateHeatMap() {
   }
   if (!(selectedCountries.size === 0)) {
     geoMapFilterData = barChartFilterData.filter(movie => {
-      return (selectedCountries.has(movie.Country_of_origin))
+      return (movie.Country_of_origin.some(country => {
+        selectedMovies.has(country)
+      }))
     })
   } else {
     geoMapFilterData = barChartFilterData

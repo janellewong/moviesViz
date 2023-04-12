@@ -57,8 +57,6 @@ body {
   }
 
 .country:hover {
-  transform: scaleZ(2.0);
-  transform-origin: center center;
   stroke: #333;
 }
 
@@ -76,6 +74,15 @@ button#heatmap-reset {
   width: 100px;
   position: absolute;
 }
+
+.h-cell {
+  stroke: none;
+}
+.h-cell.selected {
+  stroke: green;
+  stroke-width: 2;
+}
+
 
 /* Tooltip */
 #tooltip {

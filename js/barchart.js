@@ -40,8 +40,8 @@ class BarChart {
           .paddingInner(0.2);
   
       vis.xAxis = d3.axisBottom(vis.xScale)
-          .tickSizeOuter(0)
-          .tickSize(0);
+          .ticks(11)
+          .tickSizeOuter(0);
   
       vis.yAxis = d3.axisLeft(vis.yScale)
           .ticks(6)
