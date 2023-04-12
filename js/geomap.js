@@ -133,7 +133,20 @@ class Geographic {
                 } else {
                     return 'url(#lightstripe)';
                 }
-            });
+            })
+            .classed('active', d => selectedCountries.has(d.properties.name));
+
+        countryPath
+          .on('click', function(event, d) {
+            const isActive = selectedCountries.has(d.properties.name);
+            if (isActive) {
+              selectedCountries.delete(d.properties.name); // Remove filter
+            } else {
+              selectedCountries.add(d.properties.name); // Append filter
+            }
+            d3.select(this).classed('active', !isActive);
+            vis.dispatcher.call('geomapFiltersAllViz');
+          });
 
         countryPath
             .on('mousemove', (event,d) => {

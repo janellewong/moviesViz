@@ -75,6 +75,11 @@ body {
   stroke: #333;
 }
 
+.country.active {
+  stroke: #333;
+  fill: rgb(247, 125, 125);
+}
+
 .axis line {
   display: none;
 }
@@ -84,6 +89,15 @@ button#heatmap-reset {
   width: 100px;
   position: absolute;
 }
+
+.h-cell {
+  stroke: none;
+}
+.h-cell.selected {
+  stroke: green;
+  stroke-width: 2;
+}
+
 
 /* Tooltip */
 #tooltip {

@@ -12,10 +12,13 @@ let selectedMovies = new Set();
 // certificates selected from barchart as string
 let selectedCertificates = new Set();
 
+// countries selected from geomap as string
+let selectedCountries = new Set();
+
 const dispatcher = d3.dispatch(
-    'barchartFiltersScatterPlot',
-    'barchartFiltersGeomap',
+    'barchartFiltersAllViz',
     'heatmapFiltersAllViz',
+    'geomapFiltersAllViz',
 
     'heatmapFiltersBudgetSlider',
     'barchartFiltersBudgetSlider'
@@ -57,7 +60,8 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null);
-  newData = data; // Set default for newData
+  data = data.filter(d => d.Budget !== null);
+  newData = data.filter(d => d.Budget !== null);; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
@@ -100,59 +104,111 @@ function resetAllData(_data, _geoData, _scatterplotData) {
 
 function movieReset() {
   selectedMovies.clear();
-  resetAllData(data, geoData, data_filtered);
-  updateAllVis();
+  selectedCertificates.clear();
+  selectedCountries.clear();
+  // resetAllData(data, geoData, data_filtered);
+  // updateAllVis();
+  resetSliders();
 }
 
-// update scatterplot when certificates selected in barchart
-dispatcher.on('barchartFiltersScatterPlot', () => {
-  if (!(selectedCertificates.size === 0)) {
-    let updatedData = data_filtered.filter(movie => {
-      return (selectedCertificates.has(movie.Certificate))
-    })
-    scatterplot.data = updatedData;
-    scatterplot.updateVis();
-  } else {
-    scatterplot.data = newData;
-    scatterplot.updateVis();
-  }
-});
+function resetSliders() {
+  controlSlider(0, 356000000);
+  document.getElementById("slider1").value = 0;
+  document.getElementById("slider2").value = 356000000;
+}
 
-// update geographic map when certificates selected in barchart
-dispatcher.on('barchartFiltersGeomap', () => {
+// Filters input data to match selection in Heatmap
+function performHeatMapFilter(_data) {
+  if (!(selectedMovies.size === 0)) {
+    heatMapFilterData = _data.filter(movie => {
+      return (selectedMovies.has(movie.ID))
+    })
+  } else {
+    heatMapFilterData = _data
+  }
+  return heatMapFilterData
+}
+
+// Filters input data to match selection in the Bar Chart
+function performBarChartFilter(_data) {
   if (!(selectedCertificates.size === 0)) {
-    let updatedData = newData.filter(movie => {
+    barChartFilterData = _data.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
-    geographic.data = updateGeoData(updatedData, geoData);
-    geographic.updateVis();
   } else {
-    geographic.data = updateGeoData(newData, geoData);
-    geographic.updateVis();
+    barChartFilterData = _data
   }
+  return barChartFilterData
+}
+
+// Filters input data to match selection in Geographic Map
+function performGeoMapFilter(_data) {
+  if (!(selectedCountries.size === 0)) {
+    geoMapFilterData = _data.filter(movie => {
+      return (selectedCountries.has(movie.Filming_location))
+    });
+  } else {
+    geoMapFilterData = _data;
+  }
+  return geoMapFilterData;
+}
+
+// update the bar chart with all other filters
+function updateBarChart() {
+  data01 = performHeatMapFilter(data);
+  data02 = performGeoMapFilter(data01)
+
+  barchart.data = data02;
+  barchart.updateVis();
+}
+
+// update the scatterplot chart with all other filters
+function updateScatterPlot() {
+  data01 = performHeatMapFilter(data);
+  data02 = performBarChartFilter(data01);
+  data03 = performGeoMapFilter(data02);
+
+  scatterplot.data = data03;
+  scatterplot.updateVis();
+}
+
+// update the geographic map chart with all other filters
+function updateGeoMap() {
+  data01 = performHeatMapFilter(data);
+  data02 = performBarChartFilter(data01);
+
+  geographic.data = updateGeoData(data02, geoData);
+  geographic.updateVis();
+}
+
+// update the heatmap chart with all other filters
+function updateHeatMap() {
+  data01 = performBarChartFilter(data);
+  data02 = performGeoMapFilter(data01);
+
+  heatmap.data = data02;
+  heatmap.updateVis();
+}
+
+// update all other charts when the barchart is selected
+dispatcher.on('barchartFiltersAllViz', () => {
+  // updateHeatMap();
+  updateScatterPlot();
+  updateGeoMap();
 });
 
 // update scatterplot when movies are selected in heatmap
 dispatcher.on('heatmapFiltersAllViz', () => {
-  if (!(selectedMovies.size === 0)) {
-    newData = data.filter(movie => {
-      return selectedMovies.has(movie.ID)
-    })
+  updateBarChart();
+  updateScatterPlot();
+  updateGeoMap();
+});
 
-    let scatterplotData = newData.filter(d => d.Budget !== null);
-    scatterplot.data = scatterplotData;
-    barchart.data = newData;
-    geographic.data = updateGeoData(newData, geoData);
-  }
-  else {
-    scatterplot.data = data_filtered;
-    barchart.data = data;
-    geographic.data = updateGeoData(data, geoData);
-  }
-  scatterplot.updateVis();
-  selectedCertificates.clear();
-  barchart.updateVis();
-  geographic.updateVis();
+// update all other charts when the geomap is selected
+dispatcher.on('geomapFiltersAllViz', () => {
+  updateBarChart();
+  updateScatterPlot();
+  // updateHeatMap();
 });
 
 function updateGeoData(_data, _geoData) {
@@ -186,9 +242,9 @@ Get values from sliders when used and update BudgetFilterValues global filter mi
 Code referenced from:
  */
 
-function controlSlider(fromSlider, toSlider) {
-  let fromVal = parseFloat(fromSlider.value);
-  let toVal = parseFloat(toSlider.value);
+function controlSlider(fromSliderValue, toSliderValue) {
+  let fromVal = parseFloat(fromSliderValue);
+  let toVal = parseFloat(toSliderValue);
 
   if (fromVal > toVal) {
     BudgetFilterValues.max = fromVal
@@ -214,5 +270,5 @@ function controlSlider(fromSlider, toSlider) {
 const fromSlider = document.querySelector('#slider1');
 const toSlider = document.querySelector('#slider2');
 
-fromSlider.oninput = () => controlSlider(fromSlider, toSlider);
-toSlider.oninput = () => controlSlider(fromSlider, toSlider);
+fromSlider.oninput = () => controlSlider(fromSlider.value, toSlider.value);
+toSlider.oninput = () => controlSlider(fromSlider.value, toSlider.value);

@@ -225,8 +225,15 @@ class Heatmap {
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
-        .classed('selected', false)
-        .attr('stroke', 'none')
+        // .classed('selected', d => {(
+        //   d[1].some(movie => {
+        //     selectedMovies.has(movie.ID)
+        //   })
+        // )
+      
+        // console.log(d[1].some(movie => {
+        //   selectedMovies.has(movie.ID)
+        // }))})
         .on('mouseover', (event,d) => {
           let movie_count = d[1].length
           // const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
@@ -261,15 +268,11 @@ class Heatmap {
           currRect.classed('selected', !isSelected);
 
           if (!isSelected) {
-            currRect
-                .attr('stroke', 'green')
-                .attr('stroke-width', '2')
             moviesInMonth.forEach(movie => {
               selectedMovies.add(movie.ID)
             })
             // console.log(selectedMovies)
           } else {
-            currRect.attr('stroke', 'none')
             moviesInMonth.forEach(movie => {
               selectedMovies.delete(movie.ID)
             })
