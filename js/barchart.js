@@ -25,6 +25,18 @@ class BarChart {
      */
     initVis() {
       let vis = this;
+
+      const orderedKeys = ['PG-13',
+        'PG',
+        'R',
+        'TV-14',
+        'TV-MA',
+        'TV-PG',
+        'TV-Y7',
+        'NC-17',
+        'TV-G',
+        'G',
+        'Not Rated'];
   
       // Calculate inner chart size. Margin specifies the space around the actual chart.
       vis.width = vis.config.containerWidth - vis.config.margin.left - vis.config.margin.right;
@@ -37,6 +49,7 @@ class BarChart {
   
       vis.xScale = d3.scaleBand()
           .range([0, vis.width])
+          .domain(orderedKeys)
           .paddingInner(0.2);
   
       vis.xAxis = d3.axisBottom(vis.xScale)
@@ -130,7 +143,7 @@ class BarChart {
       // console.log(vis.aggregatedData.map(vis.xValue));
   
       // Set the scale input domains
-      vis.xScale.domain(vis.aggregatedData.map(vis.xValue));
+      // vis.xScale.domain(vis.aggregatedData.map(vis.xValue));
       vis.yScale.domain([0, d3.max(vis.aggregatedData, vis.yValue)]);
   
       vis.renderVis();
