@@ -133,7 +133,8 @@ class Geographic {
                 } else {
                     return 'url(#lightstripe)';
                 }
-            });
+            })
+            .classed('active', d => selectedCountries.has(d.properties.name));
 
         countryPath
           .on('click', function(event, d) {
@@ -144,7 +145,6 @@ class Geographic {
               selectedCountries.add(d.properties.name); // Append filter
             }
             d3.select(this).classed('active', !isActive);
-            console.log(selectedCountries);
             vis.dispatcher.call('geomapFiltersAllViz');
           });
 
