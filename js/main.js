@@ -98,7 +98,7 @@ function resetAllData(_data, _geoData, _scatterplotData) {
   updateGeoData(_data, _geoData)
 }
 
-function heatmapReset() {
+function movieReset() {
   selectedMovies.clear();
   resetAllData(data, geoData, data_filtered);
   updateAllVis();
@@ -107,7 +107,7 @@ function heatmapReset() {
 // update scatterplot when certificates selected in barchart
 dispatcher.on('barchartFiltersScatterPlot', () => {
   if (!(selectedCertificates.size === 0)) {
-    let updatedData = newData.filter(movie => {
+    let updatedData = data_filtered.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
     scatterplot.data = updatedData;
@@ -138,12 +138,14 @@ dispatcher.on('heatmapFiltersAllViz', () => {
     newData = data.filter(movie => {
       return selectedMovies.has(movie.ID)
     })
-    scatterplot.data = newData;
+
+    let scatterplotData = newData.filter(d => d.Budget !== null);
+    scatterplot.data = scatterplotData;
     barchart.data = newData;
     geographic.data = updateGeoData(newData, geoData);
   }
   else {
-    scatterplot.data = data;
+    scatterplot.data = data_filtered;
     barchart.data = data;
     geographic.data = updateGeoData(data, geoData);
   }
