@@ -91,7 +91,7 @@ function updateAllVis() {
 }
 
 function resetAllData(_data, _geoData) {
-  scatterplot.data = _data
+  scatterplot.data = data_filtered
   barchart.data = _data
   heatmap.data = _data
   // geographic.data = _geoData
