@@ -12,7 +12,7 @@ class Heatmap {
       containerWidth: 300,
       containerHeight: 500,
       tooltipPadding: 15,
-      margin: {top: 60, right: 20, bottom: 20, left: 28},
+      margin: {top: 60, right: 25, bottom: 20, left: 28},
       legendWidth: 160,
       legendBarHeight: 10,
       months: {
@@ -225,11 +225,11 @@ class Heatmap {
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
-        // .classed('selected', d => {(
-        //   d[1].some(movie => {
-        //     selectedMovies.has(movie.ID)
-        //   })
-        // )
+        .classed('selected', d => {(
+          d[1].some(movie => {
+            selectedMovies.has(movie.ID)
+          })
+        )})
       
         // console.log(d[1].some(movie => {
         //   selectedMovies.has(movie.ID)
@@ -261,11 +261,13 @@ class Heatmap {
         })
         .on('click', function(event, d) {
           // console.log('onclick function d: ', d)
-
+          // const isSelected = d[1].some(movie => {
+          //   selectedMovies.has(movie.ID)
+          // });
           const isSelected = d3.select(this).classed('selected');
-          let currRect = d3.select(this)
+          // let currRect = d3.select(this)
           let moviesInMonth = d[1]
-          currRect.classed('selected', !isSelected);
+          // currRect.classed('selected', !isSelected);
 
           if (!isSelected) {
             moviesInMonth.forEach(movie => {
@@ -277,6 +279,7 @@ class Heatmap {
               selectedMovies.delete(movie.ID)
             })
           }
+          d3.select(this).classed('selected', !isSelected);
 
           vis.dispatcher.call('heatmapFiltersAllViz')
 
