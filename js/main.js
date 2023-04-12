@@ -59,7 +59,7 @@ Promise.all([
     return d;
   });
 
-  data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
+  data_filtered = data.filter(d => d.Budget !== null);
   newData = data; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
@@ -68,7 +68,7 @@ Promise.all([
   geographic = new Geographic({parentElement: '#geographic-map',}, geoData, dispatcher);
 
   d3.select('#slider1 #slider2').on('change', function() {
-    resetAllData(data, geoData);
+    resetAllData(data, geoData, data_filtered);
     updateAllVis();
   })
 
@@ -93,17 +93,17 @@ function updateAllVis() {
   geographic.updateVis()
 }
 
-function resetAllData(_data, _geoData) {
-  scatterplot.data = _data
+function resetAllData(_data, _geoData, _scatterplotData) {
+  scatterplot.data = _scatterplotData
   barchart.data = _data
   heatmap.data = _data
   // geographic.data = _geoData
   updateGeoData(_data, _geoData)
 }
 
-function heatmapReset() {
+function movieReset() {
   selectedMovies.clear();
-  resetAllData(data, geoData);
+  resetAllData(data, geoData, data_filtered);
   updateAllVis();
 }
 
@@ -250,7 +250,9 @@ function controlSlider(fromSlider, toSlider) {
     return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
   })
 
-  resetAllData(updatedData, geoData);
+  let scatterData = updatedData.filter(d => d.Budget !== null);
+
+  resetAllData(updatedData, geoData, scatterData);
   updateAllVis();
 
 }

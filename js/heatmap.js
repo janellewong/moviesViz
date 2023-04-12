@@ -12,7 +12,7 @@ class Heatmap {
       containerWidth: 300,
       containerHeight: 500,
       tooltipPadding: 15,
-      margin: {top: 60, right: 20, bottom: 20, left: 45},
+      margin: {top: 60, right: 20, bottom: 20, left: 28},
       legendWidth: 160,
       legendBarHeight: 10,
       months: {
@@ -98,7 +98,7 @@ class Heatmap {
 
     // Legend
     vis.legend = vis.svg.append('g')
-        .attr('transform', `translate(${vis.config.containerWidth - vis.config.legendWidth - vis.config.margin.right},0)`);
+        .attr('transform', `translate(${vis.config.containerWidth - vis.config.legendWidth - (vis.config.margin.right*3)},0)`);
 
     vis.legendColorGradient = vis.legend.append('defs').append('linearGradient')
         .attr('id', 'linear-gradient');
