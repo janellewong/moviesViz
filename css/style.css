@@ -48,6 +48,21 @@ body {
     padding: 10px;
   }
 
+  .title-left {
+    display: flex;
+    margin-right: 400px;
+  }
+
+  .title-right {
+    margin-left: 140px;
+    margin-top: 20px;
+    display: flex;
+
+  }
+  .note {
+    margin-right: 280px;
+  }
+
   #heatmap {
     height: 500px;
   }

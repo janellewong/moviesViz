@@ -56,7 +56,7 @@ Promise.all([
     return d;
   });
 
-  data_filtered = data.filter(d => d.Budget !== null); // if we're using income instead of budget, just change it to income instead 
+  data_filtered = data.filter(d => d.Budget !== null);
   newData = data; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
