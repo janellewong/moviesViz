@@ -107,106 +107,82 @@ function heatmapReset() {
   updateAllVis();
 }
 
-// update the bar chart with all other filters
-function updateBarChart() {
+// Filters input data to match selection in Heatmap
+function performHeatMapFilter(_data) {
   if (!(selectedMovies.size === 0)) {
-    heatMapFilterData = data.filter(movie => {
+    heatMapFilterData = _data.filter(movie => {
       return (selectedMovies.has(movie.ID))
     })
   } else {
-    heatMapFilterData = data
+    heatMapFilterData = _data
   }
-  if (!(selectedCountries.size === 0)) {
-    geoMapFilterData = heatMapFilterData.filter(movie => {
-      return (movie.Country_of_origin.some(country => {
-        selectedMovies.has(country)
-      }))
+  return heatMapFilterData
+}
+
+// Filters input data to match selection in the Bar Chart
+function performBarChartFilter(_data) {
+  if (!(selectedCertificates.size === 0)) {
+    barChartFilterData = _data.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
     })
   } else {
-    geoMapFilterData = heatMapFilterData
+    barChartFilterData = _data
   }
+  return barChartFilterData
+}
 
-  barchart.data = geoMapFilterData;
+// Filters input data to match selection in Geographic Map
+function performGeoMapFilter(_data) {
+  if (!(selectedCountries.size === 0)) {
+    geoMapFilterData = _data.filter(movie => {
+      return (selectedCountries.has(movie.Filming_location))
+    });
+  } else {
+    geoMapFilterData = _data;
+  }
+  return geoMapFilterData;
+}
+
+// update the bar chart with all other filters
+function updateBarChart() {
+  data01 = performHeatMapFilter(data);
+  data02 = performGeoMapFilter(data01)
+
+  barchart.data = data02;
   barchart.updateVis();
 }
 
 // update the scatterplot chart with all other filters
 function updateScatterPlot() {
-  if (!(selectedMovies.size === 0)) {
-    heatMapFilterData = data.filter(movie => {
-      return (selectedMovies.has(movie.ID))
-    })
-  } else {
-    heatMapFilterData = data
-  }
-  if (!(selectedCertificates.size === 0)) {
-    barChartFilterData = heatMapFilterData.filter(movie => {
-      return (selectedCertificates.has(movie.Certificate))
-    })
-  } else {
-    barChartFilterData = heatMapFilterData
-  }
-  if (!(selectedCountries.size === 0)) {
-    geoMapFilterData = barChartFilterData.filter(movie => {
-      return (movie.Country_of_origin.some(country => {
-        selectedMovies.has(country)
-      }))
-    })
-  } else {
-    geoMapFilterData = barChartFilterData
-  }
+  data01 = performHeatMapFilter(data);
+  data02 = performBarChartFilter(data01);
+  data03 = performGeoMapFilter(data02);
 
-  scatterplot.data = geoMapFilterData;
+  scatterplot.data = data03;
   scatterplot.updateVis();
 }
 
 // update the geographic map chart with all other filters
 function updateGeoMap() {
-  if (!(selectedMovies.size === 0)) {
-    heatMapFilterData = data.filter(movie => {
-      return (selectedMovies.has(movie.ID))
-    })
-  } else {
-    heatMapFilterData = data
-  }
-  if (!(selectedCertificates.size === 0)) {
-    barChartFilterData = heatMapFilterData.filter(movie => {
-      return (selectedCertificates.has(movie.Certificate))
-    })
-  } else {
-    barChartFilterData = heatMapFilterData
-  }
+  data01 = performHeatMapFilter(data);
+  data02 = performBarChartFilter(data01);
 
-  geographic.data = updateGeoData(barChartFilterData, geoData);
+  geographic.data = updateGeoData(data02, geoData);
   geographic.updateVis();
 }
 
 // update the heatmap chart with all other filters
 function updateHeatMap() {
-  if (!(selectedCertificates.size === 0)) {
-    barChartFilterData = data.filter(movie => {
-      return (selectedCertificates.has(movie.Certificate))
-    })
-  } else {
-    barChartFilterData = data
-  }
-  if (!(selectedCountries.size === 0)) {
-    geoMapFilterData = barChartFilterData.filter(movie => {
-      return (movie.Country_of_origin.some(country => {
-        selectedMovies.has(country)
-      }))
-    })
-  } else {
-    geoMapFilterData = barChartFilterData
-  }
+  data01 = performBarChartFilter(data);
+  data02 = performGeoMapFilter(data01);
 
-  heatmap.data = geoMapFilterData;
+  heatmap.data = data02;
   heatmap.updateVis();
-
 }
 
+// update all other charts when the barchart is selected
 dispatcher.on('barchartFiltersAllViz', () => {
-  updateHeatMap();
+  // updateHeatMap();
   updateScatterPlot();
   updateGeoMap();
 });
@@ -222,7 +198,7 @@ dispatcher.on('heatmapFiltersAllViz', () => {
 dispatcher.on('geomapFiltersAllViz', () => {
   updateBarChart();
   updateScatterPlot();
-  updateHeatMap();
+  // updateHeatMap();
 });
 
 function updateGeoData(_data, _geoData) {
