@@ -12,10 +12,13 @@ let selectedMovies = new Set();
 // certificates selected from barchart as string
 let selectedCertificates = new Set();
 
+// countries selected from geomap as string
+let selectedCountries = new Set();
+
 const dispatcher = d3.dispatch(
-    'barchartFiltersScatterPlot',
-    'barchartFiltersGeomap',
+    'barchartFiltersAllViz',
     'heatmapFiltersAllViz',
+    'geomapFiltersAllViz',
 
     'heatmapFiltersBudgetSlider',
     'barchartFiltersBudgetSlider'
@@ -104,53 +107,116 @@ function heatmapReset() {
   updateAllVis();
 }
 
-// update scatterplot when certificates selected in barchart
-dispatcher.on('barchartFiltersScatterPlot', () => {
-  if (!(selectedCertificates.size === 0)) {
-    let updatedData = newData.filter(movie => {
-      return (selectedCertificates.has(movie.Certificate))
+// update the bar chart with all other filters
+function updateBarChart() {
+  if (!(selectedMovies.size === 0)) {
+    heatMapFilterData = data.filter(movie => {
+      return (selectedMovies.has(movie.ID))
     })
-    scatterplot.data = updatedData;
-    scatterplot.updateVis();
   } else {
-    scatterplot.data = newData;
-    scatterplot.updateVis();
+    heatMapFilterData = data
   }
-});
+  if (!(selectedCountries.size === 0)) {
+    geoMapFilterData = heatMapFilterData.filter(movie => {
+      return (selectedCountries.has(movie.Country_of_origin))
+    })
+  } else {
+    geoMapFilterData = heatMapFilterData
+  }
 
-// update geographic map when certificates selected in barchart
-dispatcher.on('barchartFiltersGeomap', () => {
+  barchart.data = geoMapFilterData;
+  barchart.updateVis();
+}
+
+// update the scatterplot chart with all other filters
+function updateScatterPlot() {
+  if (!(selectedMovies.size === 0)) {
+    heatMapFilterData = data.filter(movie => {
+      return (selectedMovies.has(movie.ID))
+    })
+  } else {
+    heatMapFilterData = data
+  }
   if (!(selectedCertificates.size === 0)) {
-    let updatedData = newData.filter(movie => {
+    barChartFilterData = heatMapFilterData.filter(movie => {
       return (selectedCertificates.has(movie.Certificate))
     })
-    geographic.data = updateGeoData(updatedData, geoData);
-    geographic.updateVis();
   } else {
-    geographic.data = updateGeoData(newData, geoData);
-    geographic.updateVis();
+    barChartFilterData = heatMapFilterData
   }
+  if (!(selectedCountries.size === 0)) {
+    geoMapFilterData = barChartFilterData.filter(movie => {
+      return (selectedCountries.has(movie.Country_of_origin))
+    })
+  } else {
+    geoMapFilterData = barChartFilterData
+  }
+
+  scatterplot.data = geoMapFilterData;
+  scatterplot.updateVis();
+}
+
+// update the geographic map chart with all other filters
+function updateGeoMap() {
+  if (!(selectedMovies.size === 0)) {
+    heatMapFilterData = data.filter(movie => {
+      return (selectedMovies.has(movie.ID))
+    })
+  } else {
+    heatMapFilterData = data
+  }
+  if (!(selectedCertificates.size === 0)) {
+    barChartFilterData = heatMapFilterData.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+  } else {
+    barChartFilterData = heatMapFilterData
+  }
+
+  geographic.data = updateGeoData(barChartFilterData, geoData);
+  geographic.updateVis();
+}
+
+// update the heatmap chart with all other filters
+function updateHeatMap() {
+  if (!(selectedCertificates.size === 0)) {
+    barChartFilterData = data.filter(movie => {
+      return (selectedCertificates.has(movie.Certificate))
+    })
+  } else {
+    barChartFilterData = data
+  }
+  if (!(selectedCountries.size === 0)) {
+    geoMapFilterData = barChartFilterData.filter(movie => {
+      return (selectedCountries.has(movie.Country_of_origin))
+    })
+  } else {
+    geoMapFilterData = barChartFilterData
+  }
+
+  heatmap.data = geoMapFilterData;
+  heatmap.updateVis();
+
+}
+
+dispatcher.on('barchartFiltersAllViz', () => {
+  updateHeatMap();
+  updateScatterPlot();
+  updateGeoMap();
 });
 
 // update scatterplot when movies are selected in heatmap
 dispatcher.on('heatmapFiltersAllViz', () => {
-  if (!(selectedMovies.size === 0)) {
-    newData = data.filter(movie => {
-      return selectedMovies.has(movie.ID)
-    })
-    scatterplot.data = newData;
-    barchart.data = newData;
-    geographic.data = updateGeoData(newData, geoData);
-  }
-  else {
-    scatterplot.data = data;
-    barchart.data = data;
-    geographic.data = updateGeoData(data, geoData);
-  }
-  scatterplot.updateVis();
-  selectedCertificates.clear();
-  barchart.updateVis();
-  geographic.updateVis();
+  updateBarChart();
+  updateScatterPlot();
+  updateGeoMap();
+});
+
+// update all other charts when the geomap is selected
+dispatcher.on('geomapFiltersAllViz', () => {
+  updateBarChart();
+  updateScatterPlot();
+  updateHeatMap();
 });
 
 function updateGeoData(_data, _geoData) {

@@ -225,8 +225,12 @@ class Heatmap {
             return vis.colorScale(vis.colorValue(d[1]));
           }
         })
-        .classed('selected', false)
         .attr('stroke', 'none')
+        .classed('selected', d => (
+          d[1].some(movie => {
+            selectedMovies.has(movie.ID)
+          })
+        ))
         .on('mouseover', (event,d) => {
           let movie_count = d[1].length
           // const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;

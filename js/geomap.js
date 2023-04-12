@@ -136,6 +136,19 @@ class Geographic {
             });
 
         countryPath
+          .on('click', function(event, d) {
+            const isActive = selectedCountries.has(d.properties.name);
+            if (isActive) {
+              selectedCountries.delete(d.properties.name); // Remove filter
+            } else {
+              selectedCountries.add(d.properties.name); // Append filter
+            }
+            d3.select(this).classed('active', !isActive);
+            console.log(selectedCountries);
+            vis.dispatcher.call('geomapFiltersAllViz');
+          });
+
+        countryPath
             .on('mousemove', (event,d) => {
                 const movieCount = d.properties.count ? `<strong>${d.properties.count}</strong> movies` : 'No data available';
                 d3.select('#tooltip')

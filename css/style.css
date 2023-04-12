@@ -57,7 +57,14 @@ body {
   }
 
 .country:hover {
+  transform: scaleZ(2.0);
+  transform-origin: center center;
   stroke: #333;
+}
+
+.country.active {
+  stroke: #333;
+  fill: rgb(247, 125, 125);
 }
 
 .axis line {

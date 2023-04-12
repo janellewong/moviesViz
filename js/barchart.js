@@ -153,6 +153,7 @@ class BarChart {
           .attr('width', vis.xScale.bandwidth())
           .attr('height', d => vis.height - vis.yScale(vis.yValue(d)))
           .attr('y', d => vis.yScale(vis.yValue(d)))
+          .classed('active', d => selectedCertificates.has(d.key))
           .on('click', function(event, d) {
             const isActive = selectedCertificates.has(d.key);
             if (isActive) {
@@ -162,8 +163,8 @@ class BarChart {
             }
             d3.select(this).classed('active', !isActive);
             console.log(selectedCertificates);
-            vis.dispatcher.call('barchartFiltersScatterPlot');
-            vis.dispatcher.call('barchartFiltersGeomap');
+            console.log(selectedMovies);
+            vis.dispatcher.call('barchartFiltersAllViz');
           });
       
       // Tooltip event listeners
