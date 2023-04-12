@@ -60,7 +60,8 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null);
-  newData = data; // Set default for newData
+  data = data.filter(d => d.Budget !== null);
+  newData = data.filter(d => d.Budget !== null);; // Set default for newData
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
@@ -103,8 +104,17 @@ function resetAllData(_data, _geoData, _scatterplotData) {
 
 function movieReset() {
   selectedMovies.clear();
-  resetAllData(data, geoData, data_filtered);
-  updateAllVis();
+  selectedCertificates.clear();
+  selectedCountries.clear();
+  // resetAllData(data, geoData, data_filtered);
+  // updateAllVis();
+  resetSliders();
+}
+
+function resetSliders() {
+  controlSlider(0, 356000000);
+  document.getElementById("slider1").value = 0;
+  document.getElementById("slider2").value = 356000000;
 }
 
 // Filters input data to match selection in Heatmap
@@ -232,9 +242,9 @@ Get values from sliders when used and update BudgetFilterValues global filter mi
 Code referenced from:
  */
 
-function controlSlider(fromSlider, toSlider) {
-  let fromVal = parseFloat(fromSlider.value);
-  let toVal = parseFloat(toSlider.value);
+function controlSlider(fromSliderValue, toSliderValue) {
+  let fromVal = parseFloat(fromSliderValue);
+  let toVal = parseFloat(toSliderValue);
 
   if (fromVal > toVal) {
     BudgetFilterValues.max = fromVal
@@ -260,5 +270,5 @@ function controlSlider(fromSlider, toSlider) {
 const fromSlider = document.querySelector('#slider1');
 const toSlider = document.querySelector('#slider2');
 
-fromSlider.oninput = () => controlSlider(fromSlider, toSlider);
-toSlider.oninput = () => controlSlider(fromSlider, toSlider);
+fromSlider.oninput = () => controlSlider(fromSlider.value, toSlider.value);
+toSlider.oninput = () => controlSlider(fromSlider.value, toSlider.value);
