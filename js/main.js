@@ -70,7 +70,10 @@ Promise.all([
 
   d3.select('#slider1 #slider2').on('change', function() {
     resetAllData(data, geoData, data_filtered);
-    updateAllVis();
+    updateBarChart();
+    updateScatterPlot();
+    updateGeoMap();
+    updateHeatMap();
   })
 
 }).catch(error => console.error(error));
@@ -153,12 +156,21 @@ function performGeoMapFilter(_data) {
   return geoMapFilterData;
 }
 
+function performSliderFilter(_data) {
+  sliderFilterData = _data.filter(movie => {
+    return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
+  });
+
+  return sliderFilterData;
+}
+
 // update the bar chart with all other filters
 function updateBarChart() {
   data01 = performHeatMapFilter(data);
-  data02 = performGeoMapFilter(data01)
+  data02 = performGeoMapFilter(data01);
+  data03 = performSliderFilter(data02);
 
-  barchart.data = data02;
+  barchart.data = data03;
   barchart.updateVis();
 }
 
@@ -167,8 +179,9 @@ function updateScatterPlot() {
   data01 = performHeatMapFilter(data);
   data02 = performBarChartFilter(data01);
   data03 = performGeoMapFilter(data02);
+  data04 = performSliderFilter(data03);
 
-  scatterplot.data = data03;
+  scatterplot.data = data04;
   scatterplot.updateVis();
 }
 
@@ -176,8 +189,9 @@ function updateScatterPlot() {
 function updateGeoMap() {
   data01 = performHeatMapFilter(data);
   data02 = performBarChartFilter(data01);
+  data03 = performSliderFilter(data02);
 
-  geographic.data = updateGeoData(data02, geoData);
+  geographic.data = updateGeoData(data03, geoData);
   geographic.updateVis();
 }
 
@@ -185,8 +199,9 @@ function updateGeoMap() {
 function updateHeatMap() {
   data01 = performBarChartFilter(data);
   data02 = performGeoMapFilter(data01);
+  data03 = performSliderFilter(data02);
 
-  heatmap.data = data02;
+  heatmap.data = data03;
   heatmap.updateVis();
 }
 
@@ -256,14 +271,10 @@ function controlSlider(fromSliderValue, toSliderValue) {
   parsedValues = "$" + fromVal + " ~ " + "$" + toVal;
   document.getElementById("sliderValues").value = parsedValues;
 
-  let updatedData = data.filter(movie => {
-    return (movie.Budget >= BudgetFilterValues.min && movie.Budget <= BudgetFilterValues.max)
-  })
-
-  let scatterData = updatedData.filter(d => d.Budget !== null);
-
-  resetAllData(updatedData, geoData, scatterData);
-  updateAllVis();
+  updateBarChart();
+  updateScatterPlot();
+  updateGeoMap();
+  updateHeatMap();
 
 }
 
