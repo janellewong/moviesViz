@@ -18,10 +18,7 @@ let selectedCountries = new Set();
 const dispatcher = d3.dispatch(
     'barchartFiltersAllViz',
     'heatmapFiltersAllViz',
-    'geomapFiltersAllViz',
-
-    'heatmapFiltersBudgetSlider',
-    'barchartFiltersBudgetSlider'
+    'geomapFiltersAllViz'
 );
 
 /**
@@ -238,9 +235,7 @@ function updateGeoData(_data, _geoData) {
 
 /*
 Slider:
-
 Get values from sliders when used and update BudgetFilterValues global filter min and max
-
 Code referenced from:
  */
 
