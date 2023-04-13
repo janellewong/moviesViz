@@ -12,7 +12,7 @@ class Heatmap {
       containerWidth: 300,
       containerHeight: 500,
       tooltipPadding: 15,
-      margin: {top: 60, right: 25, bottom: 20, left: 28},
+      margin: {top: 70, right: 25, bottom: 20, left: 28},
       legendWidth: 160,
       legendBarHeight: 10,
       months: {
@@ -98,7 +98,7 @@ class Heatmap {
 
     // Legend
     vis.legend = vis.svg.append('g')
-        .attr('transform', `translate(${vis.config.containerWidth - vis.config.legendWidth - (vis.config.margin.right*3)},0)`);
+        .attr('transform', `translate(${(vis.config.containerWidth - vis.config.margin.left - (vis.config.margin.right)*4)/2 - 15}, 20)`);
 
     vis.legendColorGradient = vis.legend.append('defs').append('linearGradient')
         .attr('id', 'linear-gradient');
@@ -117,6 +117,15 @@ class Heatmap {
 
     vis.xLegendAxisG = vis.legend.append('g')
         .attr('class', 'axis x-axis legend-axis');
+
+    vis.svg.append('text')
+        .attr('class', 'axis-title')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('dy', '.71em')
+        .style("font-weight", "bold")
+        .text('Count of Movies')
+        .attr('transform', `translate(100, 2)`);
 
     vis.updateVis();
   }

@@ -253,7 +253,7 @@ function controlSlider(fromSliderValue, toSliderValue) {
     BudgetFilterValues.max = toVal
     BudgetFilterValues.min = fromVal
   }
-  parsedValues = fromVal + " ~ " + toVal;
+  parsedValues = "$" + fromVal + " ~ " + "$" + toVal;
   document.getElementById("sliderValues").value = parsedValues;
 
   let updatedData = data.filter(movie => {

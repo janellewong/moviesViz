@@ -18,7 +18,7 @@ class Geographic {
             parentElement: _config.parentElement,
             containerWidth: 800,
             containerHeight: 600,
-            margin: _config.margin || {top: 60, right: 20, bottom: 20, left: 35},
+            margin: _config.margin || {top: 60, right: 20, bottom: 20, left: 20},
             tooltipPadding: 15,
             legendBottom: 120,
             legendLeft: 20,
@@ -48,7 +48,7 @@ class Geographic {
         // Append group element that will contain our actual chart
         // and position it according to the given margin config
         vis.chart = vis.svg.append('g')
-            .attr('transform', `translate(${vis.config.margin.left},${vis.config.margin.top})`)
+            .attr('transform', `translate(${vis.config.margin.left + 20},${vis.config.margin.top})`)
             .text("Film locations");
 
         vis.svg.append('text')
@@ -79,7 +79,7 @@ class Geographic {
         // Append legend
         vis.legend = vis.chart.append('g')
             .attr('class', 'legend')
-            .attr('transform', `translate(${vis.config.legendLeft},${vis.height - vis.config.legendBottom})`);
+            .attr('transform', `translate(${vis.config.legendLeft - 40},${vis.height - vis.config.legendBottom})`);
 
         vis.legendRect = vis.legend.append('rect')
             .attr('width', vis.config.legendRectWidth)
