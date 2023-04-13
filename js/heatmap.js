@@ -57,7 +57,6 @@ class Heatmap {
 
     vis.chart = vis.chartArea.append('g');
 
-    // TODO: may have to fix scales to use scaleBand for month?
     // Initialize scales
     vis.colorScale = d3.scaleSequential()
         .domain([0, 17])
@@ -70,7 +69,6 @@ class Heatmap {
 
     vis.yScale = d3.scaleLinear()
         .range([0, vis.config.height])
-        // .paddingInner(0.2);
 
     // Initialize x-axis
     vis.xAxis = d3.axisTop(vis.xScale)
@@ -137,7 +135,6 @@ class Heatmap {
     const vis = this;
 
     // Group data per state (we get a nested array)
-    // [[2022, [array with values]], [2021, [array with values]], ...]
     vis.groupedData = d3.groups(vis.data.filter((d) => {
       let budget = d.Budget
       return budget >= BudgetFilterValues.min && budget <= BudgetFilterValues.max
@@ -185,18 +182,8 @@ class Heatmap {
     const rowEnter = row.enter().append('g')
         .attr('class', 'h-row');
 
-    // // Enter + update
-    // rowEnter.merge(row)
-    // //   .transition().duration(1000)
-    //     .attr('transform', d => {
-    //       console.log('transform d: ', vis.yValue(d))
-    //       return `translate(0,${vis.yScale(vis.yValue(d))})`
-    //     });
-
     // Exit
     row.exit().remove();
-
-    // 2. Level: columns
 
     // 2a) Actual cells
     const cell = row.merge(rowEnter).selectAll('.h-cell')
@@ -214,13 +201,6 @@ class Heatmap {
         .attr('height', cellWidth)
         .attr('width', cellWidth)
         .attr('x', d => {
-          // get array of movies for the month
-          /*
-           d[1] gets the array of movies for the month
-           d[1][0] gets the first element in the month array. we use this to get the month that all movies of this
-           array (all the other movies in this array will be in the same year and month since that's what we grouped by)
-           */
-          // console.log('x val', vis.xScale(vis.xValue(d[0])))
           return vis.xScale(vis.xValue(d[0]))
         })
         .attr('y', d => {
@@ -239,13 +219,8 @@ class Heatmap {
             selectedMovies.has(movie.ID)
           })
         )})
-      
-        // console.log(d[1].some(movie => {
-        //   selectedMovies.has(movie.ID)
-        // }))})
         .on('mouseover', (event,d) => {
           let movie_count = d[1].length
-          // const value = (d.value === null) ? 'No data available' : Math.round(d.value * 100) / 100;
           let movie_list = '<ul>'
           d[1].forEach(movie => {
             movie_list += '<li>' + movie.Title + '</li>'
@@ -269,20 +244,12 @@ class Heatmap {
           d3.select('#tooltip').style('display', 'none');
         })
         .on('click', function(event, d) {
-          // console.log('onclick function d: ', d)
-          // const isSelected = d[1].some(movie => {
-          //   selectedMovies.has(movie.ID)
-          // });
           const isSelected = d3.select(this).classed('selected');
-          // let currRect = d3.select(this)
           let moviesInMonth = d[1]
-          // currRect.classed('selected', !isSelected);
-
           if (!isSelected) {
             moviesInMonth.forEach(movie => {
               selectedMovies.add(movie.ID)
             })
-            // console.log(selectedMovies)
           } else {
             moviesInMonth.forEach(movie => {
               selectedMovies.delete(movie.ID)
@@ -294,7 +261,6 @@ class Heatmap {
 
         });
 
-    // TODO: fix axes so they don't change during global filtering (budget sweeping)
     // Update axis
     vis.xAxisG.call(vis.xAxis);
     vis.yAxisG.call(vis.yAxis);

@@ -1,11 +1,3 @@
-// TODO: REPLACE CODE AND REFACTOR WITH: https://codesandbox.io/s/github/UBC-InfoVis/447-materials/tree/23Jan/d3-examples/d3-choropleth-map?file=/js/choroplethMap.js
-
-//         parentElement: _config.parentElement,
-//         containerWidth: _config.containerWidth || 750,
-//         containerHeight: _config.containerHeight || 500,
-//         margin: _config.margin || {top: 25, right: 20, bottom: 20, left: 35},
-//         tooltipPadding: _config.tooltipPadding || 15
-
 class Geographic {
 
     /**
@@ -53,10 +45,8 @@ class Geographic {
 
         vis.svg.append('text')
             .attr('class', 'chart-title')
-            // .attr('x', vis.config.containerWidth/2 - vis.config.margin.left - vis.config.margin.right - 5)
             .attr('x', 0)
             .attr('y', 0)
-            // .style('text-anchor', 'middle')
             .style('font-size', '20px')
             .style("font-weight", "bold")
             .text('Number of Movies by Filming Location')

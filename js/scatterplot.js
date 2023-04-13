@@ -154,7 +154,6 @@ class ScatterPlot {
           });
       
       // Update the axes/gridlines
-      // We use the second .call() to remove the axis and just show gridlines
       vis.xAxisG
           .call(vis.xAxis)
           .call(g => g.select('.domain').remove());

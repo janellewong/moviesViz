@@ -140,10 +140,8 @@ class BarChart {
       // Specificy accessor functions
       vis.xValue = d => d.key;
       vis.yValue = d => d.count;
-      // console.log(vis.aggregatedData.map(vis.xValue));
   
       // Set the scale input domains
-      // vis.xScale.domain(vis.aggregatedData.map(vis.xValue));
       vis.yScale.domain([0, d3.max(vis.aggregatedData, vis.yValue)]);
   
       vis.renderVis();
@@ -183,7 +181,6 @@ class BarChart {
       // Tooltip event listeners
       bars
         .on('mouseover', (event,d) => {
-          // if (selectedGenderFilter.length == 0 || selectedGenderFilter.includes(d.gender)) {
             d3.select('#tooltip')
               .style('display', 'block')
               .style('left', (event.pageX + vis.config.tooltipPadding) + 'px')   

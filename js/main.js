@@ -24,8 +24,6 @@ const dispatcher = d3.dispatch(
     'barchartFiltersBudgetSlider'
 );
 
-// TODO: Instantiate charts with global filter slider
-
 /**
  * Load data from CSV file asynchronously and render charts
  */
@@ -60,10 +58,8 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null);
-  data = data.filter(d => d.Budget !== null);
-  newData = data.filter(d => d.Budget !== null);; // Set default for newData
 
-  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher); // put the filtered data in since we don't want unknowns in the scatterplot
+  scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher);
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
   heatmap = new Heatmap({parentElement: '#heatmap',}, data, dispatcher);
   geographic = new Geographic({parentElement: '#geographic-map',}, geoData, dispatcher);
@@ -101,7 +97,6 @@ function resetAllData(_data, _geoData, _scatterplotData) {
   scatterplot.data = _scatterplotData
   barchart.data = _data
   heatmap.data = _data
-  // geographic.data = _geoData
   updateGeoData(_data, _geoData)
 }
 
@@ -109,8 +104,6 @@ function movieReset() {
   selectedMovies.clear();
   selectedCertificates.clear();
   selectedCountries.clear();
-  // resetAllData(data, geoData, data_filtered);
-  // updateAllVis();
   resetSliders();
 }
 
@@ -207,12 +200,11 @@ function updateHeatMap() {
 
 // update all other charts when the barchart is selected
 dispatcher.on('barchartFiltersAllViz', () => {
-  // updateHeatMap();
   updateScatterPlot();
   updateGeoMap();
 });
 
-// update scatterplot when movies are selected in heatmap
+// update all other charts when in heatmap is selected
 dispatcher.on('heatmapFiltersAllViz', () => {
   updateBarChart();
   updateScatterPlot();
@@ -223,16 +215,12 @@ dispatcher.on('heatmapFiltersAllViz', () => {
 dispatcher.on('geomapFiltersAllViz', () => {
   updateBarChart();
   updateScatterPlot();
-  // updateHeatMap();
 });
 
 function updateGeoData(_data, _geoData) {
   let countryMovieCount = getCountForEachFilmLocationCountry(_data);
 
   let _countryMovieCount = getCountForEachFilmLocationCountry(_data)
-  // console.log("before",countryMovieCount)
-
-  // let numCountries = 0;
   _geoData.objects.countries.geometries.forEach(country => {
     let countryName = country.properties.name
 
@@ -243,9 +231,6 @@ function updateGeoData(_data, _geoData) {
       country.properties.count = 0;
     }
   });
-  // console.log("after", _countryMovieCount)
-  // console.log('total countries:', numCountries)
-
   return _geoData
 }
 
@@ -274,8 +259,6 @@ function controlSlider(fromSliderValue, toSliderValue) {
   updateBarChart();
   updateScatterPlot();
   updateGeoMap();
-  updateHeatMap();
-
 }
 
 const fromSlider = document.querySelector('#slider1');
