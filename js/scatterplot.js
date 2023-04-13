@@ -145,6 +145,7 @@ class ScatterPlot {
                   <li><b>Certificate:</b>  ${d.Certificate}</li>
                   <li><b>Budget:</b> USD $${d.Budget} </li>
                   <li><b>Country of Origin:</b>  ${d.Country_of_origin}</li>
+                  <li><b>Filming Location:</b>  ${d.Filming_location}</li>
 
                 </ul>
               `);
