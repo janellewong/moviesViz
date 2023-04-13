@@ -8,25 +8,43 @@ body {
   .container {
     display: flex;
   }
-
-  .top-left-box {
-    margin-top: 30px;
-    margin-bottom: 20px;
+  
+  .top-left-top-box {
+    margin-right: 20px;
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
-    display: flex;
     padding: 10px;
   }
+
+  .top-left-bottom-box {
+    border-style: solid;
+    border-radius: 5px;
+    border-color:#ddd;
+    padding: 10px;
+
+  }
+
+  .top-right-box {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  .top-right-top-box {
+    margin-left: 20px;
+    margin-bottom: 20px;
+    height: 50px;
+    width: 300px;
+    text-align: center;
+  }
   
-  .top-right-top-box, .top-right-middle-box {
-    margin-top: 30px;
+  .top-right-middle-box {
     margin-left: 20px;
     margin-bottom: 20px;
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
-    height: 50px;
+    height: 75px;
     padding: 10px;
   }
 
@@ -40,12 +58,16 @@ body {
     padding: 10px;
   }
 
-  .bottom-left-box {
+  .top-left-box {
     border-style: solid;
     border-radius: 5px;
     border-color:#ddd;
     margin-bottom: 20px;
     padding: 10px;
+  }
+
+  .bottom-left-box {
+    display: flex;
   }
 
   .title-left {
@@ -68,7 +90,8 @@ body {
   }
 
   #geographic-map {
-    width: 750px;
+    width: 650px;
+    height: 400px;
   }
 
 .country:hover {
@@ -87,7 +110,6 @@ body {
 button#heatmap-reset {
   height: 30px;
   width: 100px;
-  position: absolute;
 }
 
 .h-cell {
