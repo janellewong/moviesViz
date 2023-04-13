@@ -9,11 +9,11 @@ class Geographic {
         this.config = {
             parentElement: _config.parentElement,
             containerWidth: 800,
-            containerHeight: 600,
-            margin: _config.margin || {top: 50, right: 20, bottom: -60, left: -30},
+            containerHeight: 400,
+            margin: _config.margin || {top: 50, right: 20, bottom: -150, left: -150},
             tooltipPadding: 15,
             legendBottom: 200,
-            legendLeft: 75,
+            legendLeft: 200,
             legendRectHeight: 12,
             legendRectWidth: 150
         }

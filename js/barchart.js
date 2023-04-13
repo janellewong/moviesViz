@@ -9,8 +9,8 @@ class BarChart {
       // Configuration object with defaults
       this.config = {
         parentElement: _config.parentElement,
-        containerWidth: _config.containerWidth || 1100,
-        containerHeight: _config.containerHeight || 300,
+        containerWidth: _config.containerWidth || 400,
+        containerHeight: _config.containerHeight || 400,
         margin: _config.margin || {top: 20, right: 25, bottom: 25 + 50, left: 35},
         tooltipPadding: _config.tooltipPadding || 15
       }

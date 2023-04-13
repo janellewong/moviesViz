@@ -55,6 +55,7 @@ Promise.all([
   });
 
   data_filtered = data.filter(d => d.Budget !== null);
+  data = data_filtered;
 
   scatterplot = new ScatterPlot({parentElement: '#scatter-plot',}, data_filtered, dispatcher);
   barchart = new BarChart({parentElement: '#bar-chart',}, data, dispatcher);
@@ -102,6 +103,7 @@ function movieReset() {
   selectedCertificates.clear();
   selectedCountries.clear();
   resetSliders();
+  heatmap.updateVis();
 }
 
 function resetSliders() {
