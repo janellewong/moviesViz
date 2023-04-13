@@ -9,7 +9,7 @@ This interactive visualization will help film producers and directors consider t
 
 See below a full screen layout of our viz:
 
-![Alt text](full_view.png)
+![Alt text](thumbnail.png)
 
 
 ## Code References
